@@ -210,11 +210,11 @@ export class TableRenderer {
       column.hidden = false;
     }
 
-    if (column.style.center) {
+    if (column.style && column.style.center) {
       classes.push('text-center');
     }
 
-    if (column.style.width) {
+    if (column.style && column.style.width) {
       styles['width'] = column.style.width;
       if (column.style.clip) {
         styles['max-width'] = column.style.width;
@@ -222,7 +222,7 @@ export class TableRenderer {
       }
     }
 
-    if (column.style.clip) {
+    if (column.style && column.style.clip) {
       styles['overflow'] = 'hidden';
       styles['text-overflow'] = 'ellipsis';
       styles['white-space'] = 'nowrap';
@@ -240,7 +240,7 @@ export class TableRenderer {
       }, '') + '"';
     }
 
-    if (column.style.type === 'severity' && column.style.displayAs === 'icon') {
+    if (column.style && column.style.type === 'severity' && column.style.displayAs === 'icon') {
       classes.push('text-center');
     }
 
