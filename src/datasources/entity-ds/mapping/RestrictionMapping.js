@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { forEach, map } from 'lodash';
 
 import {ComparatorMapping} from './ComparatorMapping'
 import {ClauseMapping} from './ClauseMapping'
@@ -32,10 +32,10 @@ export class RestrictionMapping {
     getUiQuery(apiNestedRestriction) {
         let self = this;
         let uiQuery = new UI.Query(this.uiSegmentSrv);
-        var uiClauses = _.map(apiNestedRestriction.clauses, clause => {
+        var uiClauses = map(apiNestedRestriction.clauses, clause => {
             return new ClauseMapping(self.uiSegmentSrv, self.entity).getUiClause(clause);
         });
-        _.each(uiClauses, uiClause => {
+        forEach(uiClauses, uiClause => {
             uiQuery.addClause(uiClause);
         });
         return uiQuery;
@@ -59,7 +59,7 @@ export class RestrictionMapping {
     getApiNestedRestriction(uiQuery) {
         const self = this;
         const nestedRestriction = new API.NestedRestriction();
-        _.each(uiQuery.clauses, uiClause => {
+        forEach(uiQuery.clauses, uiClause => {
             const apiClause = new ClauseMapping(self.uiSegmentSrv, self.entity).getApiClause(uiClause);
             if (apiClause !== null) {
                 nestedRestriction.withClause(apiClause);

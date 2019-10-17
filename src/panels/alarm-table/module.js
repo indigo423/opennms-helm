@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { findIndex, filter, forEach, map, defaults as applyDefaults } from 'lodash';
 import $ from 'jquery';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
 import config from 'app/core/config';
@@ -191,10 +191,10 @@ class AlarmTableCtrl extends MetricsPanelCtrl {
       delete this.panel.fields;
     }
 
-    _.defaults(this.panel, panelDefaults);
+    applyDefaults(this.panel, panelDefaults);
 
     if (this.panel.styles) {
-      this.panel.styles.forEach((style) => {
+      forEach(this.panel.styles, (style) => {
         if (style.type === 'number') {
           if (!style.colors) {
             style.colors = Array.prototype.concat([], defaultColors);
@@ -240,7 +240,7 @@ class AlarmTableCtrl extends MetricsPanelCtrl {
       });
       if (this.table && this.table.rows) {
         // put a placeholder value in until data refreshes
-        this.table.rows = this.table.rows.map((row) => {
+        this.table.rows = map(this.table.rows, (row) => {
           row.unshift(undefined);
         });
       }
@@ -353,12 +353,12 @@ class AlarmTableCtrl extends MetricsPanelCtrl {
       Title: this.panel.title,
     }
 
-    const columns = this.table.columns.map((col) => {
+    const columns = map(this.table.columns, (col) => {
       return col.text;
     });
-    const rows = this.table.rows.map((row) => {
+    const rows = map(this.table.rows, (row) => {
       const ret = {};
-      row.forEach((col, index) => {
+      forEach(row, (col, index) => {
         if (moment.isMoment(col) || col instanceof Date) {
           ret[columns[index]] = moment(col).format('YYYY-MM-DD HH:mm:ss.SSS');
         } else {
@@ -539,9 +539,9 @@ class AlarmTableCtrl extends MetricsPanelCtrl {
   findRowAndMeta(source, alarmId) {
     let matchedRow;
     let matchedMeta;
-    _.each(this.dataRaw, table => {
+    forEach(this.dataRaw, table => {
       if (table.meta && table.meta.entity_metadata) {
-        const rowIdx = _.findIndex(table.meta.entity_metadata, meta => {
+        const rowIdx = findIndex(table.meta.entity_metadata, meta => {
           return meta.source === source && meta.alarm.id === alarmId;
         });
         const filteredRow = table.rows[rowIdx];
@@ -573,11 +573,10 @@ class AlarmTableCtrl extends MetricsPanelCtrl {
     let selectedRows = this.selectionMgr.getSelectedRows();
 
     // Load up the actual alarms in the rows
-    let self = this;
-    selectedRows = _.map(selectedRows, row => {
+    selectedRows = map(selectedRows, row => {
       // Create new objects instead of modifying the existing rows
       // returned by SelectionMgr#getSelectedRows()
-      const tableRow = self.findRowAndMeta(row.source, row.alarmId);
+      const tableRow = this.findRowAndMeta(row.source, row.alarmId);
       return Object.assign({}, row, {
         alarm: tableRow && tableRow.meta ? tableRow.meta.alarm : undefined,
         ticketerConfig: tableRow && tableRow.meta ? tableRow.meta.ticketerConfig : undefined
@@ -585,7 +584,7 @@ class AlarmTableCtrl extends MetricsPanelCtrl {
     });
 
     // Filter out any rows for which we couldn't find the alarm
-    selectedRows = _.filter(selectedRows, row => row.alarm !== void 0);
+    selectedRows = filter(selectedRows, row => row.alarm !== void 0);
 
     // Generate selection-based context menu
     return new ActionMgr(this, selectedRows, this.appConfig).getContextMenu();
@@ -736,14 +735,14 @@ class AlarmTableCtrl extends MetricsPanelCtrl {
 
   // Multi-select handling
   getRowsInRange(from, to) {
-    let rows = [];
+    const rows = [];
     if (!this.table) {
       return rows;
     }
 
-    let findIdx = selectionToMatch => {
+    const findIdx = selectionToMatch => {
       if (this.table && this.table.meta && this.table.meta.entity_metadata) {
-        return _.findIndex(this.table.meta.entity_metadata, meta => {
+        return findIndex(this.table.meta.entity_metadata, meta => {
           return meta.source === selectionToMatch.source && meta.alarm.id === selectionToMatch.alarmId;
         });
       }

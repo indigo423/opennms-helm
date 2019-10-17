@@ -1,5 +1,5 @@
 import {QueryCtrl} from 'app/plugins/sdk';
-import _ from 'lodash';
+import { map, without } from 'lodash';
 
 import './add_opennms_func';
 import './func_editor';
@@ -27,7 +27,7 @@ export class FlowDatasourceQueryCtrl extends QueryCtrl {
       }
 
       if (this.target.functions) {
-        this.functions = _.map(this.target.functions, function (f) {
+        this.functions = map(this.target.functions, function (f) {
           let funcDef = Gfuncs.getFuncDef(f.name);
           let func = Gfuncs.createFuncInstance(funcDef);
           for (let i = 0; i < f.parameters.length; i++) {
@@ -45,7 +45,7 @@ export class FlowDatasourceQueryCtrl extends QueryCtrl {
 
   updateModelTarget() {
     this.target.metric = this.segments.length > 0 ? this.segments[0].value : undefined;
-    this.target.functions = _.map(this.functions, function (f) {
+    this.target.functions = map(this.functions, function (f) {
       return f.render();
     });
   }
@@ -66,7 +66,7 @@ export class FlowDatasourceQueryCtrl extends QueryCtrl {
   }
 
   removeFunction(func) {
-    this.functions = _.without(this.functions, func);
+    this.functions = without(this.functions, func);
     this.targetChanged();
   }
 

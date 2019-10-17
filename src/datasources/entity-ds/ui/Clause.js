@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { filter } from 'lodash';
 import {UI} from '../UI';
 
 export class Clause {
@@ -30,7 +30,7 @@ export class Clause {
         ];
 
         const self = this;
-        this.controls = _.filter(controls, control => {
+        this.controls = filter(controls, control => {
             return control.filter(query, self);
         });
 

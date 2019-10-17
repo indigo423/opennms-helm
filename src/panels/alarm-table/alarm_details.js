@@ -1,7 +1,7 @@
 import { TableRenderer } from "./renderer"
 import md5 from 'crypto-js/md5';
 import {Model} from 'opennms';
-import _ from 'lodash';
+import { forEach, map, orderBy } from 'lodash';
 
 const compareStrings = (a, b) => {
   return (a || b) ? (!a ? -1 : !b ? 1 : a.localeCompare(b)) : 0;
@@ -33,14 +33,14 @@ export class AlarmDetailsCtrl {
 
     if ($scope.alarm.relatedAlarms && $scope.alarm.relatedAlarms.length > 0) {
       const related = {};
-      $scope.alarm.relatedAlarms.forEach(alarm => {
+      forEach($scope.alarm.relatedAlarms, alarm => {
         const label = (alarm.nodeLabel === undefined || alarm.nodeLabel === null)? '' : alarm.nodeLabel;
         if (!related[label]) {
           related[label] = [];
         }
         related[label].push(alarm);
       });
-      $scope.relatedAlarms = Object.keys(related).sort(compareStrings).map((label) => {
+      $scope.relatedAlarms = map(Object.keys(related).sort(compareStrings), (label) => {
         return {
           label: label,
           alarms: related[label]
@@ -268,7 +268,7 @@ export class AlarmDetailsCtrl {
   updateFeedback(feedback) {
     // We get all feedback from the datasource.
     // Use only the latest that matches the current relatedAlarms.
-    let sortedFeedback = _.orderBy(feedback, ['timestamp'],  ['desc']);
+    let sortedFeedback = orderBy(feedback, ['timestamp'],  ['desc']);
     for (let fb of sortedFeedback) {
       const index = this.$scope.situationFeedback.findIndex(ifb => ifb.alarmKey === fb.alarmKey);
       if (index < 0) {

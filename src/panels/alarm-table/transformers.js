@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { concat, forEach, map, uniqBy } from 'lodash';
 import {TableModel} from './table_model';
 
 let transformers = {};
@@ -12,7 +12,7 @@ transformers.table = {
 
     // Create a list containing the column names from each table
     let columns = [];
-    _.forEach(data, (table) => {
+    forEach(data, (table) => {
       columns.push(table.columns);
     });
     // Return the intersection of all column names only returning
@@ -26,14 +26,14 @@ transformers.table = {
   },
 
   transformTable: function(data, columnsToInclude) {
-    let model = new TableModel();
+    const model = new TableModel();
 
     // Convert the rows to columns
     let cellsByColumnIndex = [];
-    _.each(data.columns, () => cellsByColumnIndex.push([]));
+    forEach(data.columns, () => cellsByColumnIndex.push([]));
 
     // For every row
-    _.each(data.rows, row => {
+    forEach(data.rows, row => {
       // And every cell in the row
       for (let i = 0; i < row.length; i++) {
         // Append the cell to the appropriate column list
@@ -47,9 +47,9 @@ transformers.table = {
     // Now reorder the columns according the list of columns in the panel definition
     let cellsByPanelColumnIndex = [];
     for (let j = 0; j < columnsToInclude.length; j++) {
-      let colDef = columnsToInclude[j];
+      const colDef = columnsToInclude[j];
       // Determine the column's index in the given data
-      let idx = _.findIndex(data.columns, col => {
+      const idx = data.columns.findIndex(col => {
         return col === colDef.text || col.text === colDef.text;
       });
       if (idx < 0) {
@@ -77,26 +77,26 @@ transformers.table = {
   },
 
   mergeTables: function(tables) {
-    let model = new TableModel();
+    const model = new TableModel();
 
     // Use the list of columns from the first table:
     //  transformTable() will ensure that all tables have the same columns
     model.columns = tables[0].columns;
 
     // Concatenate the rows
-    _.each(tables, table => {
-      const tableRows = _.map(table.rows, (row, idx) => {
+    forEach(tables, table => {
+      const tableRows = map(table.rows, (row, idx) => {
         // temporarily stuff the meta into the row object so we can `uniqBy` easily
         if (table && table.meta && table.meta.entity_metadata && table.meta.entity_metadata[idx]) {
           row.meta = table.meta.entity_metadata[idx];
         }
         return row;
       });
-      model.rows = _.concat(model.rows, tableRows);
+      model.rows = concat(model.rows, tableRows);
     });
 
     // De-duplicate by (source, alarm.id) tuple
-    model.rows = _.uniqBy(model.rows, row => {
+    model.rows = uniqBy(model.rows, row => {
       if (row.meta && row.meta.alarm) {
         return JSON.stringify({
           source: row.meta.source,
@@ -107,7 +107,7 @@ transformers.table = {
       }
     });
 
-    model.meta.entity_metadata = _.map(model.rows, row => {
+    model.meta.entity_metadata = map(model.rows, row => {
       const meta = row.meta;
       delete row.meta;
       return meta;
@@ -133,7 +133,7 @@ transformers.table = {
 
     // Transform each of the datasource results individually
     let transformedTables = [];
-    _.each(data, (dat) => {
+    forEach(data, (dat) => {
       if (dat.type !== 'table') {
         throw {message: 'Query result is not in table format, try using another transform.'};
       }

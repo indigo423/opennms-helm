@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEmpty, isNull } from 'lodash';
 
 const failed = Symbol('failed');
 const escapeRE = /[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g; // eslint-disable-line no-useless-escape
@@ -9,7 +9,7 @@ function makeVariableRE(variableName) {
 }
 
 export function getMatch(value, variableName) {
-  if (_.isNull(value) || _.isEmpty(value)) {
+  if (isNull(value) || isEmpty(value)) {
     return false;
   }
 

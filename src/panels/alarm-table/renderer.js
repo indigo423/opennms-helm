@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { escape as escapeHtml, first, isArray, isNil, isString } from 'lodash';
 import { getValueFormat, getColorFromHexRgbOrName } from '@grafana/ui';
 import { stringToJsRegex } from '@grafana/data';
 
@@ -84,7 +84,7 @@ export class TableRenderer {
         return getColorFromHexRgbOrName(style.colors[i], this.theme);
       }
     }
-    return getColorFromHexRgbOrName(_.first(style.colors), this.theme);
+    return getColorFromHexRgbOrName(first(style.colors), this.theme);
   }
 
   defaultCellFormatter(v, style) {
@@ -92,14 +92,14 @@ export class TableRenderer {
       return '';
     }
 
-    if (_.isArray(v)) {
+    if (isArray(v)) {
       v = v.join(', ');
     }
 
     if (style && style.sanitize) {
       return this.sanitize(v);
     } else {
-      return _.escape(v);
+      return escapeHtml(v);
     }
   }
 
@@ -118,12 +118,12 @@ export class TableRenderer {
           return '-';
         }
 
-        if (_.isArray(v)) {
+        if (isArray(v)) {
           v = v[0];
         }
 
         // if is an epoch (numeric string and len > 12)
-        if (_.isString(v) && !isNaN(v) && v.length > 12) {
+        if (isString(v) && !isNaN(v) && v.length > 12) {
           v = parseInt(v, 10);
         }
 
@@ -146,7 +146,7 @@ export class TableRenderer {
 
     if (column.style.type === 'string') {
       return v => {
-        if (_.isArray(v)) {
+        if (isArray(v)) {
           v = v.join(', ');
         }
 
@@ -164,7 +164,7 @@ export class TableRenderer {
             }
 
             // Allow both numeric and string values to be mapped
-            if ((!_.isString(v) && Number(map.value) === Number(v)) || map.value === v) {
+            if ((!isString(v) && Number(map.value) === Number(v)) || map.value === v) {
               this.setColorState(v, column.style);
               return this.defaultCellFormatter(map.text, column.style);
             }
@@ -206,7 +206,7 @@ export class TableRenderer {
           return '-';
         }
 
-        if (isNaN(v) || _.isArray(v)) {
+        if (isNaN(v) || isArray(v)) {
           return this.defaultCellFormatter(v, column.style);
         }
 
@@ -252,7 +252,7 @@ export class TableRenderer {
       return;
     }
 
-    if (value === null || value === void 0 || _.isArray(value)) {
+    if (value === null || value === void 0 || isArray(value)) {
       return;
     }
 
@@ -280,7 +280,7 @@ export class TableRenderer {
   }
 
   renderCell(columnIndex, rowIndex, value, addWidthHack, columnClasses) {
-    const title = !_.isNil(value) && _.isString(value) ? ' title="' + value.trim().replace(/"/g, '&quot;') + '"' : '';
+    const title = !isNil(value) && isString(value) ? ' title="' + value.trim().replace(/"/g, '&quot;') + '"' : '';
 
     value = this.formatColumnValue(columnIndex, value);
 

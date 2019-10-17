@@ -1,7 +1,8 @@
+import { filter, forEach, isArray, map } from 'lodash';
+
 import {ClientDelegate} from '../../lib/client_delegate';
 import {FunctionFormatter} from '../../lib/function_formatter';
 import {API, Model} from 'opennms';
-import _ from 'lodash';
 import AlarmEntity from './AlarmEntity';
 import NodeEntity from './NodeEntity';
 
@@ -107,7 +108,7 @@ export class OpenNMSEntityDatasource {
 
   _getTemplateVariable(name) {
     if (this.templateSrv.variables && this.templateSrv.variables.length > 0) {
-        return this.templateSrv.variables.filter((v) => {
+        return filter(this.templateSrv.variables, (v) => {
             return v.name === name;
         })[0];
     }
@@ -142,7 +143,7 @@ export class OpenNMSEntityDatasource {
   substitute(clauses, options) {
       const self = this;
       const remove = [];
-      _.each(clauses, clause => {
+      forEach(clauses, clause => {
         if (clause.restriction) {
             const restriction = clause.restriction;
             if (restriction instanceof API.NestedRestriction) {
@@ -160,15 +161,15 @@ export class OpenNMSEntityDatasource {
                         // annoyingly, depending on how you interact with the UI, if one value is selected it will
                         // *either* be an array with 1 entry, or just the raw value >:|
                         // so we normalize it back to just the raw value here if necessary
-                        if (_.isArray(templateVariable.current.value) && templateVariable.current.value.length === 1) {
+                        if (isArray(templateVariable.current.value) && templateVariable.current.value.length === 1) {
                             templateVariable.current.value = templateVariable.current.value[0];
                         }
 
                         // now if it's *still* an array, we chop it up into nested restrictions
-                        if (_.isArray(templateVariable.current.value)) {
+                        if (isArray(templateVariable.current.value)) {
                             const replacement = new API.NestedRestriction();
                             let values = templateVariable.current.value;
-                            if (!_.isArray(values)) {
+                            if (!isArray(values)) {
                                 values = [values];
                             }
                             for (const value of values) {
@@ -282,7 +283,8 @@ export class OpenNMSEntityDatasource {
     // special case queries to fill in metadata
     if (options.queryType === 'attributes') {
         if (options.strategy === 'featured') {
-            return this.q.when(entity.getColumns().filter(col => col.featured).map(col => {
+            const featured = filter(entity.getColumns(), col => col.featured);
+            return this.q.when(map(featured, col => {
                 return { id: col.resource, value: col.text }
             }));
         }
@@ -333,7 +335,7 @@ export class OpenNMSEntityDatasource {
                   // Severity is handled separately as otherwise the severity ordinal vs the severity label would be
                   // used, but that may not be ideal for the user
                   case 'severity':
-                      return this.q.when(_.map(Model.Severities, severity => {
+                      return this.q.when(map(Model.Severities, severity => {
                           return {
                               id: severity.id,
                               label: severity.label
@@ -341,7 +343,8 @@ export class OpenNMSEntityDatasource {
                       }));
               }
               return property.findValues({limit: 1000}).then(values => {
-                  return values.filter(value => value !== null).map(value => {
+                  const notnull = filter(values, value => value !== null);
+                  return map(notnull, value => {
                       return {id: value, label: value, text: value ? String(value) : value, value: value}
                   });
               });

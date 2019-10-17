@@ -2,7 +2,7 @@ import './modal_ctrl';
 import {QueryType} from './constants';
 import {QueryCtrl} from 'app/plugins/sdk';
 import appEvents from 'app/core/app_events';
-import _ from 'lodash';
+import { filter, forEach, isNull, isUndefined, sortBy, take } from 'lodash';
 
 export class OpenNMSQueryCtrl extends QueryCtrl {
   /** @ngInject */
@@ -35,8 +35,8 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
           };
         });
     }, function (node) {
-      if (!_.isUndefined(node.foreignId) && !_.isNull(node.foreignId) &&
-        !_.isUndefined(node.foreignSource) && !_.isNull(node.foreignSource)) {
+      if (!isUndefined(node.foreignId) && !isNull(node.foreignId) &&
+        !isUndefined(node.foreignSource) && !isNull(node.foreignSource)) {
         // Prefer fs:fid
         self.target.nodeId = node.foreignSource + ":" + node.foreignId;
       } else {
@@ -54,14 +54,14 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
       var filteredResources = resources;
       if (query.length >= 1) {
         query = query.toLowerCase();
-        filteredResources = _.filter(resources, function (resource) {
+        filteredResources = filter(resources, function (resource) {
           return resource.key.indexOf(query) >= 0;
         });
       }
 
       // Limit the results - it takes along time to render if there are too many
       var totalCount = filteredResources.length;
-      filteredResources = _.take(filteredResources, self.datasource.searchLimit);
+      filteredResources = take(filteredResources, self.datasource.searchLimit);
 
       return {
         'count': filteredResources.length,
@@ -84,11 +84,11 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
       return self.datasource.getResourcesWithAttributesForNode(self.target.nodeId)
         .then(function (resources) {
           // Compute a key for more efficient searching
-          _.each(resources, function (resource) {
+          forEach(resources, function (resource) {
             resource.key = resource.label.toLowerCase() + resource.name.toLowerCase();
           });
           // Sort the list once
-          self.nodeResources = _.sortBy(resources, function (resource) {
+          self.nodeResources = sortBy(resources, function (resource) {
             return resource.label;
           });
           // Filter
@@ -117,7 +117,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
         .suggestAttributes(self.target.nodeId, self.target.resourceId, query)
         .then(function (attributes) {
           var namedAttributes = [];
-          _.each(attributes, function (attribute) {
+          forEach(attributes, function (attribute) {
             namedAttributes.push({'name': attribute});
           });
 

@@ -26,7 +26,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 
 import angular from "angular";
 import $ from "jquery";
-import _ from "lodash";
+import { escape } from 'lodash';
 import PerfectScrollbar from "perfect-scrollbar";
 
 angular
@@ -140,7 +140,7 @@ angular
 
                         html +=
                             '<a class="flow-legend-alias" style="float:none;">' +
-                            _.escape(seriesData.label) +
+                            escape(seriesData.label) +
                             "</a>";
 
                         html += "</div>";

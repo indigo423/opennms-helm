@@ -1,6 +1,6 @@
 import AlarmEntity from "../datasources/entity-ds/AlarmEntity";
 import {Model} from 'opennms';
-import _ from "lodash";
+import _ from 'lodash';
 
 describe('AlarmEntity', function() {
 

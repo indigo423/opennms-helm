@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { find, map, without } from 'lodash';
 
 import {transformers} from './transformers';
 
@@ -153,13 +153,13 @@ export class TablePanelEditorCtrl {
     // Filter out columns that have already been selected
     columns = columns.filter(a => this.panel.columns.indexOf(a) < 0);
 
-    const segments = _.map(columns, (c) => this.uiSegmentSrv.newSegment({value: c.text}));
+    const segments = map(columns, (c) => this.uiSegmentSrv.newSegment({value: c.text}));
     return this.$q.when(segments);
   }
 
   addColumn() {
     const columns = transformers[this.panel.transform].getColumns(this.panelCtrl.dataRaw);
-    const column = _.find(columns, {text: this.addColumnSegment.value});
+    const column = find(columns, {text: this.addColumnSegment.value});
 
     if (column) {
       this.panel.columns.push(column);
@@ -186,7 +186,7 @@ export class TablePanelEditorCtrl {
   }
 
   removeColumn(column) {
-    this.panel.columns = _.without(this.panel.columns, column);
+    this.panel.columns = without(this.panel.columns, column);
     this.panelCtrl.render();
   }
 }

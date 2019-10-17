@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { find } from 'lodash';
 import {API} from 'opennms'
 
 export class OperatorMapping {
@@ -11,7 +11,7 @@ export class OperatorMapping {
     }
 
     getApiOperator(uiOperator) {
-        const apiOperator = _.find(API.Operators, function(eachOperator) {
+        const apiOperator = find(API.Operators, function(eachOperator) {
             return eachOperator.matches(uiOperator);
         });
         if (!apiOperator) {

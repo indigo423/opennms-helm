@@ -1,6 +1,7 @@
 import {FilterColumn} from '../../lib/filter_column';
 import {entityTypes} from '../../datasources/entity-ds/datasource';
 
+import { filter, map } from 'lodash';
 import $ from 'jquery';
 
 // Recreated in div#alarm-filter-editor-add-column whenever a column is added to
@@ -196,9 +197,9 @@ export class FilterPanelEditorCtrl {
           const data = res && res.data ? res.data : res;
 
           // filter out columns that have already been selected
-          const filtered = data.filter(a => self.panel.columns.indexOf(a) < 0);
+          const filtered = filter(data, a => self.panel.columns.indexOf(a) < 0);
       
-          const segments = filtered.map(c => self.uiSegmentSrv.newSegment({
+          const segments = map(filtered, c => self.uiSegmentSrv.newSegment({
             // datasource: ds.name,
             value: c.name
           }));
@@ -235,7 +236,7 @@ export class FilterPanelEditorCtrl {
         ds.metricFindQuery(entityType ? entityType.queryFunction + '()' : null, opts).then((res) => {
           console.debug('addColumn: metricFindQuery result:', res);
     
-          const match = res.filter(col => col.name === label)[0];
+          const match = filter(res, col => col.name === label)[0];
           if (match) {
             const label = match.name;
             const column = new FilterColumn(label, undefined, ds.name, match.id, 'multi', entityType);
@@ -296,7 +297,7 @@ export class FilterPanelEditorCtrl {
   getDatasources() {
     const sources = this.datasourceSrv.getMetricSources();
     const configuredDatasource = this.getConfiguredDatasource();
-    const filtered = sources.filter(ds => {
+    const filtered = filter(sources, ds => {
       if (configuredDatasource) {
         return ds.name === configuredDatasource;
       }
@@ -313,7 +314,7 @@ export class FilterPanelEditorCtrl {
     const resetDatasource = self.getConfiguredDatasource() || self.panel.datasource || undefined;
 
     return self.getDatasource(resetDatasource).then((ds) => {
-      const datasource = self.$scope.datasources.filter((existing) => {
+      const datasource = filter(self.$scope.datasources, (existing) => {
         return ds.name === existing.name;
       })[0];
 

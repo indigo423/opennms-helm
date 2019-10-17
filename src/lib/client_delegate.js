@@ -1,5 +1,5 @@
 import {API, Client, Rest} from 'opennms';
-import _ from 'lodash';
+import { find, map } from 'lodash';
 
 let Q;
 
@@ -132,7 +132,7 @@ export class ClientDelegate {
     findNodeProperty(propertyId) {
         return this.getNodeProperties()
             .then(properties => {
-                return _.find(properties, function(property) {
+                return find(properties, function(property) {
                     return property.id === propertyId;
                 });
             });
@@ -245,7 +245,7 @@ export class ClientDelegate {
     }
 
     findOperators() {
-        const operators = _.map(API.Operators, function(operator) {
+        const operators = map(API.Operators, function(operator) {
             return {
                 id: operator.id,
                 label: operator.label
@@ -264,7 +264,7 @@ export class ClientDelegate {
     findAlarmProperty(propertyId) {
         return this.getAlarmProperties()
             .then(properties => {
-                return _.find(properties, function(property) {
+                return find(properties, function(property) {
                     return property.id === propertyId;
                 });
             });

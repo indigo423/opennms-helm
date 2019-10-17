@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { findKey } from 'lodash';
 
 export class AttributeMapping {
     constructor(mapping) {
@@ -6,7 +6,7 @@ export class AttributeMapping {
     }
 
     getUiAttribute(externalAttribute) {
-        const internalAttribute = _.findKey(this.attributeMapping, function(value) {
+        const internalAttribute = findKey(this.attributeMapping, function(value) {
             return value === externalAttribute;
         });
         return internalAttribute || externalAttribute;

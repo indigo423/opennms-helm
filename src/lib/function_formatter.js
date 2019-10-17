@@ -1,5 +1,6 @@
 const ARGUMENT_MATCH = /\s*,\s*/;
 
+import { filter, forEach, map } from 'lodash';
 import parse from 'parenthesis/index';
 
 const isString = (value) => {
@@ -31,7 +32,7 @@ export class FunctionFormatter {
      */
     static parenthesizeWithArguments(label) {
         const parenthesized = FunctionFormatter.parenthesize(label);
-        return parenthesized.map(entry => {
+        return map(parenthesized, entry => {
             if (entry && entry.arguments) {
                 if (entry.arguments.length < 2) {
                     entry.arguments = FunctionFormatter.getArguments(entry.arguments[0]);
@@ -47,7 +48,7 @@ export class FunctionFormatter {
      * Given a label, return the list of potential functions found in it.
      */
     static findFunctions(label) {
-        return FunctionFormatter.parenthesizeWithArguments(label).filter(entry => entry && entry.name !== undefined);
+        return filter(FunctionFormatter.parenthesizeWithArguments(label), entry => entry && entry.name !== undefined);
     }
 
     /**
@@ -71,7 +72,7 @@ export class FunctionFormatter {
         const parenthesized = FunctionFormatter.parenthesizeWithArguments(label);
 
         let ret = '';
-        parenthesized.forEach(token => {
+        forEach(parenthesized, token => {
             if (isString(token)) {
                 // just a regular scalar
                 ret += token;
@@ -146,7 +147,7 @@ export class FunctionFormatter {
         const ret = [];
         const matcher = /^(.*?)(\w+?)\($/;
         let skip = false;
-        args.forEach((arg, index) => {
+        forEach(args, (arg, index) => {
             if (skip) {
                 skip = false;
                 return;
@@ -188,7 +189,7 @@ export class FunctionFormatter {
      */
     static _flatten(args) {
         let ret = [];
-        args.forEach((arg) => {
+        forEach(args, (arg) => {
             if (isString(arg)) {
                 if (arg.length === 0) {
                     return;
@@ -207,7 +208,7 @@ export class FunctionFormatter {
             } else if (Array.isArray(arg)) {
                 // argument is sub-parens that need further flattening
                 const result = FunctionFormatter._flatten(arg);
-                result.forEach((res) => {
+                forEach(result, (res) => {
                     const prev = getLast(ret);
                     if (isString(res)) {
                         if (res.trim().length === 0) {
@@ -246,7 +247,7 @@ export class FunctionFormatter {
 
     static _getNodeFromMetadata(metadata, nodeId, foreignSource, foreignId) {
         if (metadata && metadata.nodes) {
-            const ret = metadata.nodes.filter((node) => {
+            const ret = filter(metadata.nodes, (node) => {
                 return (nodeId !== undefined && node.id === nodeId) ||
                 (foreignSource !== undefined && foreignId !== undefined &&
                     node['foreign-source'] === foreignSource && node['foreign-id'] === foreignId);
@@ -281,9 +282,9 @@ export class FunctionFormatter {
 
     static _getResourceFromCriteria(metadata, resourceCriteria, ...nodeCriterias) {
         if (metadata && metadata.resources) {
-            const ret = metadata.resources.filter((resource) => {
+            const ret = filter(metadata.resources, (resource) => {
                 if (resource.id === resourceCriteria) return true;
-                for (const criteria of nodeCriterias.map(c => c + '.' + resourceCriteria)) {
+                for (const criteria of map(nodeCriterias, c => c + '.' + resourceCriteria)) {
                     if (resource.id === criteria) {
                         return true;
                     }

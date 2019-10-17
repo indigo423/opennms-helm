@@ -1,7 +1,6 @@
 import {MetricsPanelCtrl} from "app/plugins/sdk";
 import {filterPanelEditor} from './editor';
-import _ from "lodash";
-
+import { defaults as applyDefaults, forEach, map } from 'lodash';
 import {FilterColumn} from '../../lib/filter_column';
 
 class FilterCtrl extends MetricsPanelCtrl {
@@ -15,7 +14,7 @@ class FilterCtrl extends MetricsPanelCtrl {
         this.timeSrv = timeSrv;
         this.$q = $q;
 
-        _.defaults(this.panel, {
+        applyDefaults(this.panel, {
             columns: []
         });
         this.columnData = {};
@@ -41,7 +40,7 @@ class FilterCtrl extends MetricsPanelCtrl {
         this.$scope.dashboard = this.dashboard;
         this.$scope.ctrl = this;
         this.$scope.columnVariables = [];
-        this.panel.columns = this.panel.columns.map((col) => FilterColumn.fromJSON(col));
+        this.panel.columns = map(this.panel.columns, (col) => FilterColumn.fromJSON(col));
 
         this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
         this.events.on('render', this.onRender.bind(this));
@@ -59,14 +58,14 @@ class FilterCtrl extends MetricsPanelCtrl {
 
     onRender() {
         const self = this;
-        this.$scope.columns = this.panel.columns.map(column => this.enrichColumn(column));
+        this.$scope.columns = map(this.panel.columns, column => this.enrichColumn(column));
         this.updateVariables().then(() => {
             self.ctrl.renderingCompleted();
         });
     }
 
     updateVariables() {
-        return this.$q.all(this.$scope.columns.map((column, index) => this.getVariable(column, index))).then(cols => {
+        return this.$q.all(map(this.$scope.columns, (column, index) => this.getVariable(column, index))).then(cols => {
             this.$scope.columnVariables = cols;
             return cols;
         });
@@ -95,7 +94,7 @@ class FilterCtrl extends MetricsPanelCtrl {
 
         const selected = column.selected;
         if (selected) {
-            query.options.forEach(opt => {
+            forEach(query.options, opt => {
                 if (Array.isArray(selected.value)) {
                     opt.selected = selected.value.contains(opt.value);
                 }
@@ -146,7 +145,7 @@ class FilterCtrl extends MetricsPanelCtrl {
                 variable.current.entityType = variable.entityType;
             }
             this.panel.columns[index].selected = variable.current;
-            self.dashboard.panels.forEach(panel => {
+            forEach(self.dashboard.panels, panel => {
                 if (panel !== self.panel) {
                     panel.refresh();
                 }

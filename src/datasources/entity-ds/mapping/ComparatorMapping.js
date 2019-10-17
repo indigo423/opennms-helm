@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import {API} from 'opennms';
+import { find } from 'lodash';
+import { API } from 'opennms';
 
 export class ComparatorMapping {
     getUiComparator(apiComparator) {
@@ -15,7 +15,7 @@ export class ComparatorMapping {
     }
 
     getApiComparator(uiComparator) {
-        const apiComparator = _.find(API.Comparators, function(comparator) {
+        const apiComparator = find(API.Comparators, function(comparator) {
             return comparator.matches(uiComparator);
         });
         if (!apiComparator) {

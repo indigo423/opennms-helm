@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { clone, find, forEach, isEmpty, isNull } from 'lodash';
 
 function cartesianProductOfArrays(arrays) {
   // Based on the code from http://stackoverflow.com/questions/15298912/
@@ -24,7 +24,7 @@ function cartesianProductOfArrays(arrays) {
 function cartesianProductOfVariables(variables) {
   // Collect the values from all of the variables
   var allValues = [];
-  _.each(variables, function (variable) {
+  forEach(variables, function (variable) {
     allValues.push(variable.value);
   });
 
@@ -33,7 +33,7 @@ function cartesianProductOfVariables(variables) {
 
   // Rebuild the variables
   var productOfAllVariables = [];
-  _.each(productOfAllValues, function (rowOfValues) {
+  forEach(productOfAllValues, function (rowOfValues) {
     var rowOfVariables = [];
     for (var i = 0, l = variables.length; i < l; i++) {
       // Deep clone
@@ -48,18 +48,18 @@ function cartesianProductOfVariables(variables) {
 }
 
 function defaultContainsVariable(value, variableName) {
-  if (_.isNull(value) || _.isEmpty(value)) {
+  if (isNull(value) || isEmpty(value)) {
     return false;
   }
   return value.indexOf("$" + variableName) >= 0;
 }
 
 function defaultReplace(value, variables) {
-  if (_.isNull(value) || _.isEmpty(value)) {
+  if (isNull(value) || isEmpty(value)) {
     return value;
   }
   var interpolatedValue = value;
-  _.each(variables, function (variable) {
+  forEach(variables, function (variable) {
     var regexVarName = "\\$" + variable.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     interpolatedValue = interpolatedValue.replace(new RegExp(regexVarName, "g"), variable.value);
   });
@@ -101,13 +101,13 @@ export function interpolate(object, attributes, variables, callback, containsVar
   }
 
   // Add the index variable with a single value
-  var variablesWithIndex = _.clone(variables);
+  var variablesWithIndex = clone(variables);
   variablesWithIndex.push({name: 'index', value: [0]});
 
   // Collect the list of variables that are referenced by one or more of the keys
   var referencedVariables = [];
-  _.each(variablesWithIndex, function (variable) {
-    var isVariableReferenced = _.find(attributes, function (attribute) {
+  forEach(variablesWithIndex, function (variable) {
+    var isVariableReferenced = find(attributes, function (attribute) {
       return containsVariable(object[attribute], variable.name);
     });
 
@@ -128,17 +128,17 @@ export function interpolate(object, attributes, variables, callback, containsVar
   // Perform the required variable substitution
   var objects = [];
   var index = 0;
-  _.each(productOfAllVariables, function (rowOfReferencedVariables) {
+  forEach(productOfAllVariables, function (rowOfReferencedVariables) {
     // Update the value of the index variable to reflect the index of the row
-    _.each(rowOfReferencedVariables, function (variable) {
+    forEach(rowOfReferencedVariables, function (variable) {
       if (variable.name === 'index') {
         variable.value = 'idx' + index;
         index += 1;
       }
     });
 
-    var o = _.clone(object);
-    _.each(attributes, function (attribute) {
+    var o = clone(object);
+    forEach(attributes, function (attribute) {
       o[attribute] = replace(o[attribute], rowOfReferencedVariables);
     });
 

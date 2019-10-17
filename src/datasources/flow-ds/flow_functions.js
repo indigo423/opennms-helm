@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { forEach, isString, map, sortBy } from 'lodash';
 import $ from 'angular';
 
 let index = [];
@@ -168,8 +168,8 @@ addFuncDef({
   }]
 });
 
-_.each(categories, function (funcList, catName) {
-  categories[catName] = _.sortBy(funcList, 'name');
+forEach(categories, function (funcList, catName) {
+  categories[catName] = sortBy(funcList, 'name');
 });
 
 function FuncInstance(funcDef, options) {
@@ -186,7 +186,7 @@ function FuncInstance(funcDef, options) {
 FuncInstance.prototype.render = function (/* metricExp */) {
   return {
     name: this.def.name,
-    parameters: _.map(this.params, function (value, index) {
+    parameters: map(this.params, function (value, index) {
       let paramType = this.def.params[index].type;
       if (paramType === 'int' || paramType === 'value_or_series' || paramType === 'boolean') {
         return value;
@@ -211,7 +211,7 @@ FuncInstance.prototype.updateParam = function (strValue, index) {
   // handle optional parameters
   // if string contains ',' and next param is optional, split and update both
   if (this._hasMultipleParamsInString(strValue, index)) {
-    _.each(strValue.split(','), function (partVal, idx) {
+    forEach(strValue.split(','), function (partVal, idx) {
       this.updateParam(partVal.trim(), index + idx);
     }.bind(this));
     return;
@@ -241,7 +241,7 @@ FuncInstance.prototype.updateText = function () {
 
 export class Gfuncs {
   static createFuncInstance(funcDef, options) {
-    if (_.isString(funcDef)) {
+    if (isString(funcDef)) {
       if (!index[funcDef]) {
         throw {message: 'Method not found ' + name};
       }
@@ -256,7 +256,7 @@ export class Gfuncs {
 
   static getCategories(/* graphiteVersion */) {
     let filteredCategories = {};
-    _.each(categories, function (functions, category) {
+    forEach(categories, function (functions, category) {
       if (functions.length) {
         filteredCategories[category] = functions;
       }

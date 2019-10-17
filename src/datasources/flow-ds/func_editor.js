@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { forEach, map, move, partial } from 'lodash';
 
 /**
  * This function editor has been adapted from the Graphite query editor's functione editor.
@@ -108,7 +108,7 @@ angular
             options = funcDef.params[paramIndex].options;
           }
           if (funcDef.params[paramIndex].type === 'int') {
-            options = _.map(options, function (val) {
+            options = map(options, function (val) {
               return val.toString();
             });
           }
@@ -164,7 +164,7 @@ angular
           $funcControls.appendTo(elem);
           $funcLink.appendTo(elem);
 
-          _.each(funcDef.params, function (param, index) {
+          forEach(funcDef.params, function (param, index) {
             if (param.optional && func.params.length <= index) {
               return;
             }
@@ -182,10 +182,10 @@ angular
             $paramLink.appendTo(elem);
             $input.appendTo(elem);
 
-            $input.blur(_.partial(inputBlur, index));
+            $input.blur(partial(inputBlur, index));
             $input.keyup(inputKeyDown);
-            $input.keypress(_.partial(inputKeyPress, index));
-            $paramLink.click(_.partial(clickFuncParam, index));
+            $input.keypress(partial(inputKeyPress, index));
+            $paramLink.click(partial(clickFuncParam, index));
 
             if (funcDef.params[index].options) {
               if (typeof funcDef.params[index].options === 'function') {
@@ -227,7 +227,7 @@ angular
 
             if ($target.hasClass('fa-arrow-left')) {
               $scope.$apply(function () {
-                _.move(ctrl.functions, $scope.$index, $scope.$index - 1);
+                move(ctrl.functions, $scope.$index, $scope.$index - 1);
                 ctrl.targetChanged();
               });
               return;
@@ -235,7 +235,7 @@ angular
 
             if ($target.hasClass('fa-arrow-right')) {
               $scope.$apply(function () {
-                _.move(ctrl.functions, $scope.$index, $scope.$index + 1);
+                move(ctrl.functions, $scope.$index, $scope.$index + 1);
                 ctrl.targetChanged();
               });
               return;
@@ -283,7 +283,7 @@ class OptionsContext {
 
   getFirstParam(defName) {
     let param = undefined;
-    this.functions.forEach((func) => {
+    forEach(this.functions, (func) => {
       if(func.def.name === defName) {
         param = func.params[0];
       }

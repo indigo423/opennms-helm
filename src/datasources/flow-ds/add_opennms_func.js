@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { find, forEach, map, reduce } from 'lodash';
 
 import {Gfuncs, Cardinality} from "./flow_functions";
 
@@ -44,7 +44,7 @@ angular
               if (!funcDef) {
                 // try find close match
                 value = value.toLowerCase();
-                funcDef = _.find(allFunctions, function (funcName) {
+                funcDef = find(allFunctions, function (funcName) {
                   return funcName.toLowerCase().indexOf(value) === 0;
                 });
 
@@ -102,8 +102,8 @@ angular
   });
 
 function getAllFunctionNames(categories) {
-  return _.reduce(categories, function (list, category) {
-    _.each(category, function (func) {
+  return reduce(categories, function (list, category) {
+    forEach(category, function (func) {
       list.push(func.name);
     });
     return list;
@@ -128,7 +128,7 @@ function isExcluded(f, selectedFunctions) {
 
 function functionsContainNamedFunction(functionName, selectedFunctions) {
   let result = false;
-  selectedFunctions.forEach((f) => {
+  forEach(selectedFunctions, (f) => {
     if (f.name === functionName) {
       result = true;
     }
@@ -138,7 +138,7 @@ function functionsContainNamedFunction(functionName, selectedFunctions) {
 
 function functionsExcludeNamedFunction(functionName, selectedFunctions) {
     let result = false;
-    selectedFunctions.forEach((f) => {
+    forEach(selectedFunctions, (f) => {
         let funcDef = Gfuncs.getFuncDef(f.name);
         if (funcDef.mutuallyExcludes && funcDef.mutuallyExcludes.includes(functionName)) {
             result = true;
@@ -150,9 +150,9 @@ function functionsExcludeNamedFunction(functionName, selectedFunctions) {
 function createFunctionDropDownMenu(categories, selectedSegment, selectedFunctions) {
   let categoriesToRender = [];
 
-  _.forEach(categories, (functionsInCategory, categoryName) => {
+  forEach(categories, (functionsInCategory, categoryName) => {
     let functionsToRender = [];
-    functionsInCategory.forEach((item) => {
+    forEach(functionsInCategory, (item) => {
       // Only add this submenu item if it is applicable to the currently selected metric segment and its Cardinality
       // isn't preventing it from being added
       if ((!item.appliesToSegments || item.appliesToSegments.includes(selectedSegment)) &&
@@ -161,7 +161,7 @@ function createFunctionDropDownMenu(categories, selectedSegment, selectedFunctio
       }
     });
 
-    let submenu = _.map(functionsToRender, (f) => {
+    let submenu = map(functionsToRender, (f) => {
       return {
         text: f.name,
         click: "ctrl.addFunction('" + f.name + "')",

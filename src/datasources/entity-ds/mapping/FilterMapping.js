@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { forEach } from 'lodash';
 
 import {API} from 'opennms'
 import {UI} from '../UI';
@@ -25,14 +25,14 @@ export class FilterMapping {
         filter.limit = 0;
         filter.orderBy = [];
 
-        _.each(uiFilter.query.clauses, (eachClause) => {
+        forEach(uiFilter.query.clauses, (eachClause) => {
             const apiClause = new ClauseMapping(this.uiSegmentSrv, this.entity).getApiClause(eachClause);
             if (apiClause !== null) {
                 filter.withClause(apiClause);
             }
         });
 
-        _.each(uiFilter.query.orderBy, (eachOrderBy) => {
+        forEach(uiFilter.query.orderBy, (eachOrderBy) => {
             if (eachOrderBy.isFake()) {
                 return;
             }
@@ -52,7 +52,7 @@ export class FilterMapping {
 
         let uiFilter = new UI.Filter(this.uiSegmentSrv, this.entity);
 
-        _.each(apiFilter.clauses, (apiClause) => {
+        forEach(apiFilter.clauses, (apiClause) => {
             const uiClause = new ClauseMapping(this.uiSegmentSrv, this.entity).getUiClause(apiClause);
             uiFilter.addClause(uiClause);
 
@@ -60,7 +60,7 @@ export class FilterMapping {
             this.applyParentQuery(uiClause, uiFilter.query);
         });
 
-        _.each(apiFilter.orderBy, (apiOrderBy) => {
+        forEach(apiFilter.orderBy, (apiOrderBy) => {
             const uiOrderBy = new OrderByMapping(this.uiSegmentSrv, this.entity).getUiOrderBy(apiOrderBy);
             uiFilter.addOrderBy(uiOrderBy);
             uiFilter.query.setOrder(apiOrderBy.order.label);

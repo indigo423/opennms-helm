@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import {Query} from './Query';
+import { find } from 'lodash';
+import { Query } from './Query';
 
 
 /**
@@ -32,7 +32,7 @@ export class RemoveControl extends Control {
     action(query, clause) {
         query.removeClause(clause);
         if (query.root === false && query.getSize() === 0 && query.parentQuery !== undefined) {
-            const parentClause = _.find(query.parentQuery.clauses, clause => {
+            const parentClause = find(query.parentQuery.clauses, clause => {
                 return clause.restriction == query
             });
             query.parentQuery.removeClause(parentClause);

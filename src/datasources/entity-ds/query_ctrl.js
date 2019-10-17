@@ -1,12 +1,14 @@
 import {QueryCtrl} from 'app/plugins/sdk';
-import './css/query-editor.css';
-import _ from 'lodash';
+
+import { map, reduce } from 'lodash';
 import {API} from 'opennms';
+
 import {Mapping} from './Mapping';
 import {UI} from './UI';
-import './query-directive';
 
 import {entityTypes, getEntity} from './datasource';
+import './query-directive';
+import './css/query-editor.css';
 
 export class OpenNMSEntityDatasourceQueryCtrl extends QueryCtrl {
   /** @ngInject */
@@ -88,14 +90,14 @@ export class OpenNMSEntityDatasourceQueryCtrl extends QueryCtrl {
 
   showClearRestrictions(query = this._getUiFilter().query) {
     const self = this;
-    const booleanList = _.map(query.clauses, clause => {
+    const booleanList = map(query.clauses, clause => {
       if (clause.restriction instanceof UI.Query) {
         return self.showClearRestrictions(clause.restriction);
       }
       return new UI.Controls.RemoveControl().filter(query, clause);
     });
 
-    return _.reduce(booleanList, (overall, current) => {
+    return reduce(booleanList, (overall, current) => {
       return overall || current;
     }, false);
 

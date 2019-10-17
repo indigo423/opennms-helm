@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { filter, forEach, map } from 'lodash';
 import {UI} from '../UI';
 
 import { KEY_PLACEHOLDER, VALUE_PLACEHOLDER } from '../constants';
@@ -42,7 +42,7 @@ export class Query {
     }
 
     setOrder(order) {
-        this.order = orders.filter((o) => o.label.toLowerCase() === order.toLowerCase())[0] || orders[0];
+        this.order = filter(orders, (o) => o.label.toLowerCase() === order.toLowerCase())[0] || orders[0];
     }
 
     updateControls() {
@@ -52,7 +52,7 @@ export class Query {
         if (this.getSize() == 0) {
             this.createNewEmptyClause();
         }
-        _.each(this.clauses, clause => {
+        forEach(this.clauses, clause => {
             clause.updateControls(self);
         });
 
@@ -113,7 +113,7 @@ export class Query {
         if (this.isEmpty()) {
             return "";
         }
-        let ret = this.clauses.map((clause, index) => {
+        let ret = map(this.clauses, (clause, index) => {
             let string = '';
             if (clause.restriction instanceof UI.Query) {
                 const subString = clause.restriction.asString();
@@ -137,7 +137,7 @@ export class Query {
         }).join("");
 
         if (this.root && this.orderBy.length > 0) {
-            ret += ' ' + this.orderBy.map((orderBy) => orderBy.asString()).join(', ');
+            ret += ' ' + map(this.orderBy, (orderBy) => orderBy.asString()).join(', ');
         }
 
         return ret;

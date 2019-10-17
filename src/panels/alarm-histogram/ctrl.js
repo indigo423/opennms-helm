@@ -1,5 +1,5 @@
 import {MetricsPanelCtrl} from "app/plugins/sdk";
-import _ from "lodash";
+import { countBy, defaults as applyDefaults, defaultTo, findIndex, isNil, isString, map } from "lodash";
 import $ from "jquery";
 import "jquery.flot";
 import "jquery.flot.selection";
@@ -16,7 +16,7 @@ class AlarmHistogramCtrl extends MetricsPanelCtrl {
 
         this._renderRetries = 0;
 
-        _.defaults(this.panel, {
+        applyDefaults(this.panel, {
             groupProperty: 'acknowledged',
             direction: 'horizontal',
         });
@@ -43,16 +43,16 @@ class AlarmHistogramCtrl extends MetricsPanelCtrl {
     onDataReceived(data) {
         switch (this.panel.groupProperty) {
             case 'acknowledged': {
-                const counts = _.countBy(this.query(data, 'Acked By'), _.isNil);
+                const counts = countBy(this.query(data, 'Acked By'), isNil);
                 this.series = [
                     {
                         name: 'Outstanding',
-                        count: _.defaultTo(counts[true], 0),
+                        count: defaultTo(counts[true], 0),
                         color: this.scope.$root.colors[0],
                     },
                     {
                         name: 'Acknowledged',
-                        count: _.defaultTo(counts[false], 0),
+                        count: defaultTo(counts[false], 0),
                         color: this.scope.$root.colors[4],
                     },
                 ];
@@ -60,41 +60,41 @@ class AlarmHistogramCtrl extends MetricsPanelCtrl {
             }
 
             case 'severity': {
-                const counts = _.countBy(this.query(data, 'Severity'));
+                const counts = countBy(this.query(data, 'Severity'));
                 this.series = [
                     {
                         name: 'Cleared',
-                        count: _.defaultTo(counts['CLEARED'], 0),
+                        count: defaultTo(counts['CLEARED'], 0),
                         color: '#EEE000',
                     },
                     {
                         name: 'Normal',
-                        count: _.defaultTo(counts['NORMAL'], 0),
+                        count: defaultTo(counts['NORMAL'], 0),
                         color: '#86B15B',
                     },
                     {
                         name: 'Indeterm.',
-                        count: _.defaultTo(counts['INDETERMINATE'], 0),
+                        count: defaultTo(counts['INDETERMINATE'], 0),
                         color: '#990000',
                     },
                     {
                         name: 'Warning',
-                        count: _.defaultTo(counts['WARNING'], 0),
+                        count: defaultTo(counts['WARNING'], 0),
                         color: '#FCCC3B',
                     },
                     {
                         name: 'Minor',
-                        count: _.defaultTo(counts['MINOR'], 0),
+                        count: defaultTo(counts['MINOR'], 0),
                         color: '#EE901C',
                     },
                     {
                         name: 'Major',
-                        count: _.defaultTo(counts['MAJOR'], 0),
+                        count: defaultTo(counts['MAJOR'], 0),
                         color: '#E3692F',
                     },
                     {
                         name: 'Critical',
-                        count: _.defaultTo(counts['CRITICAL'], 0),
+                        count: defaultTo(counts['CRITICAL'], 0),
                         color: '#DB4345',
                     },
 
@@ -113,7 +113,7 @@ class AlarmHistogramCtrl extends MetricsPanelCtrl {
 
     onRender() {
         let height = this.ctrl.height || this.ctrl.panel.height || (this.ctrl.row && this.ctrl.row.height);
-        if (_.isString(height)) {
+        if (isString(height)) {
             height = parseInt(height.replace('px', ''), 10);
         }
 
@@ -140,7 +140,7 @@ class AlarmHistogramCtrl extends MetricsPanelCtrl {
         switch (this.panel.direction) {
             case 'horizontal':
                 $.plot(this.elem,
-                    _.map(this.series, function (serie) {
+                    map(this.series, function (serie) {
                         return {
                             data: [[serie.count, serie.name]],
                             color: serie.color,
@@ -170,7 +170,7 @@ class AlarmHistogramCtrl extends MetricsPanelCtrl {
 
             case 'vertical':
                 $.plot(this.elem,
-                    _.map(this.series, function (serie) {
+                    map(this.series, function (serie) {
                         return {
                             data: [[serie.name, serie.count]],
                             color: serie.color,
@@ -206,7 +206,7 @@ class AlarmHistogramCtrl extends MetricsPanelCtrl {
         let result = [];
 
         for (let i = 0; i < data.length; i++) {
-            const columnIndex = _.findIndex(data[i].columns, {text: column});
+            const columnIndex = findIndex(data[i].columns, {text: column});
             const rows = data[i] && data[i].rows ? data[i].rows : [];
             for (let j = 0; j < rows.length; j++) {
                 result.push(data[i].rows[j][columnIndex]);

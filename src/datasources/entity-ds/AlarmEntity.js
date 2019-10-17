@@ -1,6 +1,6 @@
-import _ from 'lodash';
+import { flatten, forEach, isArray, isNil, map, sortBy, uniq } from 'lodash';
 
-import {API} from 'opennms';
+import { API } from 'opennms';
 
 import { AttributeMapping } from './mapping/AttributeMapping';
 import Entity from './Entity';
@@ -91,7 +91,7 @@ export default class AlarmEntity extends Entity {
     const restrictions = new API.NestedRestriction();
 
     if (filterPanel && filterPanel.columns && filterPanel.columns.length > 0) {
-      filterPanel.columns.forEach((column) => {
+      forEach(filterPanel.columns, (column) => {
         const selected = column.selected;
         if (!selected) {
           return;
@@ -102,7 +102,7 @@ export default class AlarmEntity extends Entity {
         }
         const comparator = API.Comparators.EQ;
         const getValueRestriction = val => {
-          if (!self.datasource.templateSrv.isAllValue(val) && !_.isNil(val)) {
+          if (!self.datasource.templateSrv.isAllValue(val) && !isNil(val)) {
             if ((selected.resource === 'categories' || selected.resource === 'category.name')) {
               return new API.Restriction('category.name', comparator, val);
             } else if (selected.inputType === 'text') {
@@ -118,7 +118,7 @@ export default class AlarmEntity extends Entity {
           return undefined;
         };
         if (selected.value) {
-          const values = Array.isArray(selected.value) ? selected.value : [selected.value];
+          const values = isArray(selected.value) ? selected.value : [selected.value];
           let restriction;
           if (values.length === 0) {
             return;
@@ -126,7 +126,7 @@ export default class AlarmEntity extends Entity {
             restriction = getValueRestriction(values[0]);
           } else {
             restriction = new API.NestedRestriction();
-            values.forEach(val => {
+            forEach(values, val => {
               if (val) restriction.withOrRestriction(getValueRestriction(val));
             });
             if (!restriction.clauses || restriction.clauses.length === 0) {
@@ -169,25 +169,32 @@ export default class AlarmEntity extends Entity {
 
   static toTable(alarms, columns, metadata, datasourceName) {
     // Build a sorted list of (unique) event parameter names
-    let parameterNames = _.uniq(_.sortBy(_.flatten(_.map(alarms, alarm => {
-      if (!alarm.lastEvent || !alarm.lastEvent.parameters) {
-        return [];
-      }
-      return _.map(alarm.lastEvent.parameters, parameter => {
-        return parameter.name;
-      });
-    })), name => name), true);
+    const parameterNames = uniq(
+      sortBy(
+        flatten(
+          map(alarms, alarm => {
+            if (!alarm.lastEvent || !alarm.lastEvent.parameters) {
+              return [];
+            }
+            return map(alarm.lastEvent.parameters, parameter => {
+              return parameter.name;
+            });
+          }),
+        ),
+        name => name),
+      true
+    );
 
     // Include the event parameters as columns
-    _.each(parameterNames, parameterName => {
+    forEach(parameterNames, parameterName => {
       columns.push({
         text: 'Param_' + parameterName,
         resource: 'lastEvent.' + parameterName,
       });
     });
 
-    const rows = _.map(alarms, alarm => {
-      let row = [
+    const rows = map(alarms, alarm => {
+      const row = [
         alarm.id,
         alarm.count,
         alarm.ackUser,
@@ -209,7 +216,7 @@ export default class AlarmEntity extends Entity {
         alarm.suppressedUntil,
         alarm.suppressedBy,
         alarm.lastEvent ? alarm.lastEvent.ipAddress ? alarm.lastEvent.ipAddress.address : undefined : undefined,
-        !_.isNil(alarm.ackUser) && !_.isNil(alarm.ackTime),
+        !isNil(alarm.ackUser) && !isNil(alarm.ackTime),
 
         // Event
         alarm.firstEventTime,
@@ -249,13 +256,13 @@ export default class AlarmEntity extends Entity {
       // Index the event parameters by name
       const eventParametersByName = {};
       if (alarm.lastEvent && alarm.lastEvent.parameters) {
-        _.each(alarm.lastEvent.parameters, parameter => {
+        forEach(alarm.lastEvent.parameters, parameter => {
           eventParametersByName[parameter.name] = parameter.value;
         });
       }
 
       // Append the event parameters to the row
-      _.each(parameterNames, (parameterName) => {
+      forEach(parameterNames, (parameterName) => {
         if (eventParametersByName.hasOwnProperty(parameterName)) {
           row.push(eventParametersByName[parameterName]);
         } else {
@@ -266,7 +273,7 @@ export default class AlarmEntity extends Entity {
       return row;
     });
 
-    const metas = _.map(alarms, alarm => {
+    const metas = map(alarms, alarm => {
       return {
           // Store the alarm for easy access by the panels
           'alarm': alarm,

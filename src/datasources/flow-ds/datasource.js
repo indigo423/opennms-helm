@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { filter, forEach, groupBy, isString, map } from 'lodash';
 import {ClientDelegate} from '../../lib/client_delegate';
 import kbn from 'app/core/utils/kbn';
 
@@ -209,7 +209,7 @@ export class FlowDatasource {
   metricFindExporterNodes(/* query */) {
     return this.client.getExporters().then(exporters => {
       let results = [];
-      _.each(exporters, function (exporter) {
+      forEach(exporters, function (exporter) {
         results.push({text: exporter.label, value: exporter.id, expandable: true});
       });
       return results;
@@ -219,7 +219,7 @@ export class FlowDatasource {
   metricFindInterfacesOnExporterNode(query) {
     return this.client.getExporter(query).then(exporter => {
       let results = [];
-      _.each(exporter.interfaces, function (iff) {
+      forEach(exporter.interfaces, function (iff) {
         results.push({text: iff.name + "(" + iff.index + ")", value: iff.index, expandable: true});
       });
       return results;
@@ -232,7 +232,7 @@ export class FlowDatasource {
     if (toBits) {
       let inIndex = table.headers.indexOf('Bytes In');
       let outIndex = table.headers.indexOf('Bytes Out');
-      table.rows = _.map(table.rows, (row) => {
+      table.rows = map(table.rows, (row) => {
         row[inIndex] *= 8;
         row[outIndex] *= 8;
         return row;
@@ -242,7 +242,7 @@ export class FlowDatasource {
     }
 
 
-    let columns = table && table.headers ? _.map(table.headers, column => {
+    let columns = table && table.headers ? map(table.headers, column => {
       return {"text": column}
     }) : [];
 
@@ -338,9 +338,9 @@ export class FlowDatasource {
   }
 
   static sumMatchingTargets(series) {
-    let targetsByName = _.groupBy(series, (s) => s.target);
+    let targetsByName = groupBy(series, (s) => s.target);
     let newSeries = [];
-    _.each(targetsByName, (t) => {
+    forEach(targetsByName, (t) => {
       let target = t[0].target;
       let K = t.length;
       let N = t[0].datapoints.length;
@@ -364,14 +364,14 @@ export class FlowDatasource {
   }
 
   static getFirstFunction(target, name) {
-    let matchingFunctions = _.filter(target.functions, function (f) {
+    let matchingFunctions = filter(target.functions, function (f) {
       return f.name === name;
     });
     return matchingFunctions.length > 0 ? matchingFunctions[0] : null;
   }
 
   static getFunctions(target, name) {
-    let matchingFunctions = _.filter(target.functions, function (f) {
+    let matchingFunctions = filter(target.functions, function (f) {
       return f.name === name;
     });
     return matchingFunctions.length > 0 ? matchingFunctions : null;
@@ -389,7 +389,7 @@ export class FlowDatasource {
     }
 
     // Return the parameter value, and perform any required template variable substitutions
-    if (_.isString(func.parameters[idx])) {
+    if (isString(func.parameters[idx])) {
       return this.templateSrv.replace(func.parameters[idx]);
     } else {
       return func.parameters[idx];
@@ -404,7 +404,7 @@ export class FlowDatasource {
     }
 
     let returnFuncs = [];
-    funcs.forEach((func) => {
+    forEach(funcs, (func) => {
       if (func.parameters[idx]) {
         returnFuncs.push(this.templateSrv.replace(func.parameters[idx]));
       }

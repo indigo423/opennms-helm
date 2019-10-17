@@ -1,4 +1,5 @@
-import {Model} from 'opennms';
+import { forEach } from 'lodash';
+import { Model } from 'opennms';
 
 export class TableModel {
   constructor() {
@@ -56,7 +57,7 @@ export class TableModel {
       return 0;
     });
 
-    this.columns.forEach(col => col.sort = false);
+    forEach(this.columns, col => col.sort = false);
     this.columns[options.col].sort = true;
 
     if (options.desc) {

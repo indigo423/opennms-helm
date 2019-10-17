@@ -1,6 +1,6 @@
 /*eslint no-unused-vars: "warn"*/
 import {MetricsPanelCtrl} from "app/plugins/sdk";
-import _ from "lodash";
+import { defaults as applyDefaults, defaultTo, findIndex, forEach, isString, map } from 'lodash';
 import $ from "jquery";
 import moment from "moment";
 import "jquery.flot";
@@ -24,10 +24,10 @@ class HelmHistogramCtrl extends MetricsPanelCtrl {
         // For these to work well together, we need the 'categories' plugin
         // to be called *before* the stack plugin.
         // Re-order them if necessary
-        const categoriesPluginIdx = _.findIndex($.plot.plugins, plugin => {
+        const categoriesPluginIdx = findIndex($.plot.plugins, plugin => {
             return plugin.name === 'categories';
         });
-        const stackPluginIdx = _.findIndex($.plot.plugins, plugin => {
+        const stackPluginIdx = findIndex($.plot.plugins, plugin => {
             return plugin.name === 'stack';
         });
         if (categoriesPluginIdx >= 0 && stackPluginIdx >= 0 && categoriesPluginIdx > stackPluginIdx) {
@@ -37,7 +37,7 @@ class HelmHistogramCtrl extends MetricsPanelCtrl {
             $.plot.plugins[categoriesPluginIdx] = stackPlugin;
         }
 
-        _.defaults(this.panel, {
+        applyDefaults(this.panel, {
             direction: 'horizontal',
             units: 'b',
             display: 'total',
@@ -96,7 +96,7 @@ class HelmHistogramCtrl extends MetricsPanelCtrl {
         this.elem.empty();
 
         let height = this.ctrl.height || this.ctrl.panel.height || (this.ctrl.row && this.ctrl.row.height);
-        if (_.isString(height)) {
+        if (isString(height)) {
             height = parseInt(height.replace('px', ''), 10);
         }
 
@@ -181,14 +181,14 @@ class HelmHistogramCtrl extends MetricsPanelCtrl {
         if (this.panel.display === 'rate') {
             this.units += '/s';
             let timeRangeInSeconds = moment.duration(this.range.to.diff(this.range.from)).asSeconds();
-            inByLabel = _.map(inByLabel, (element) => {
+            inByLabel = map(inByLabel, (element) => {
                 return {
                     key: element.key,
                     value: element.value / timeRangeInSeconds
                 };
             });
 
-            outByLabel = _.map(outByLabel, (element) => {
+            outByLabel = map(outByLabel, (element) => {
                 return {
                     key: element.key,
                     value: element.value / timeRangeInSeconds
@@ -370,7 +370,7 @@ class HelmHistogramCtrl extends MetricsPanelCtrl {
             return legendData;
         }
 
-        return _.map(seriesData, (serie) => {
+        return map(seriesData, (serie) => {
             return {
                 label: serie.label,
                 color: this.getColorForSeriesIndex(seriesIndex++)
@@ -474,12 +474,12 @@ class HelmHistogramCtrl extends MetricsPanelCtrl {
     static extractValueAndLabel(data, valueColumn, direction, labelFunc) {
         const values = [];
 
-        const columns = data[0].columns.map((e) => {
+        const columns = map(data[0].columns, (e) => {
             return e.text.toLowerCase();
         });
         const valueColumnIndex = columns.indexOf(valueColumn.toLowerCase());
 
-        data[0].rows.forEach((row) => {
+        forEach(data[0].rows, (row) => {
             values.push({
                 key: labelFunc(columns, row),
                 value: row[valueColumnIndex]
@@ -520,7 +520,7 @@ class HelmHistogramCtrl extends MetricsPanelCtrl {
     static generateResultObject(data, i, divisor, color) {
         return {
             name: data[i].key,
-            count: _.defaultTo(data[i].value, 0) / divisor,
+            count: defaultTo(data[i].value, 0) / divisor,
             color: color,
         }
     }

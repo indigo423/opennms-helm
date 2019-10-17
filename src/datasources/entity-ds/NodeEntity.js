@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { map } from 'lodash';
 
 import Entity from './Entity';
 import { AttributeMapping } from './mapping/AttributeMapping';
@@ -46,10 +46,12 @@ const mapping = new AttributeMapping({
   parentForeignId: 'parent.foreindId',
 });
 
+const TYPE = 'node';
+
 export default class NodeEntity extends Entity {
   constructor(client, datasource) {
     super(client, datasource);
-    this.type = 'node';
+    this.type = TYPE;
   }
 
   getAttributeMapping() {
@@ -75,7 +77,7 @@ export default class NodeEntity extends Entity {
       return undefined;
     };
 
-    const rows = _.map(nodes, node => {
+    const rows = map(nodes, node => {
       const primaryIpInterface = getPrimary(node);
       const primarySnmp = primaryIpInterface && primaryIpInterface.snmpInterface;
 
@@ -104,19 +106,19 @@ export default class NodeEntity extends Entity {
           primarySnmp ? primarySnmp.ifIndex : undefined,
           primaryIpInterface && primaryIpInterface.ipAddress ? primaryIpInterface.ipAddress.correctForm() : undefined,
           /* primaryIpInterface && primaryIpInterface.ipHostname ? primaryIpInterface.ipHostname : undefined, */
-          node.categories ? node.categories.map(cat => cat.name) : undefined,
+          node.categories ? map(node.categories, cat => cat.name) : undefined,
 
           // Data Source
           self.name
       ];
     });
 
-    const metas = _.map(nodes, node => {
+    const metas = map(nodes, node => {
       return {
         // Store the node for easy access by the panels
         'node': node,
         // Store the entity type
-        'type': 'node',
+        'type': TYPE,
         // Store the name of the data-source as part of the data so that
         // the panel can grab an instance of the DS to perform actions
         // on the nodes, if necessary

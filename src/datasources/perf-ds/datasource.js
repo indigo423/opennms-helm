@@ -1,6 +1,6 @@
 import {QueryType} from './constants';
 import {interpolate} from "./interpolate";
-import _ from 'lodash';
+import { first, forEach, indexOf, isString, keys, map, sortBy } from 'lodash';
 import {FunctionFormatter} from '../../lib/function_formatter';
 
 export class OpenNMSDatasource {
@@ -101,7 +101,7 @@ export class OpenNMSDatasource {
       })
       // Sort resulting series by labels
       .then((result) => {
-          result.data = _.sortBy(result.data, (s) => _.indexOf(labels, s.label));
+          result.data = sortBy(result.data, (s) => indexOf(labels, s.label));
           return result;
       })
       .catch(err => {
@@ -135,7 +135,7 @@ export class OpenNMSDatasource {
       return this.$q.resolve([]);
     }
 
-    var interpolatedQuery = _.first(this.interpolateValue(query));
+    var interpolatedQuery = first(this.interpolateValue(query));
 
     if (interpolatedQuery !== undefined) {
       const functions = FunctionFormatter.findFunctions(interpolatedQuery);
@@ -167,7 +167,7 @@ export class OpenNMSDatasource {
         console.warn("Filter matches " + response.data.totalCount + " records, but only " + response.data.count + " will be used.");
       }
       var results = [];
-      _.each(response.data.node, function (node) {
+      forEach(response.data.node, function (node) {
         var nodeCriteria = node.id.toString();
         if (node.foreignId !== null && node.foreignSource !== null) {
           nodeCriteria = node.foreignSource + ":" + node.foreignId;
@@ -187,7 +187,7 @@ export class OpenNMSDatasource {
       }
     }).then(function (response) {
       var results = [];
-      _.each(response.data.children.resource, function (resource) {
+      forEach(response.data.children.resource, function (resource) {
         var resourceWithoutNodePrefix = resource.id.match(/node(Source)?\[.*?\]\.(.*)/);
         if (resourceWithoutNodePrefix) {
           results.push({text: resourceWithoutNodePrefix[2], expandable: true});
@@ -219,7 +219,7 @@ export class OpenNMSDatasource {
 
     var labels = [];
 
-    _.each(options.targets, function (target) {
+    forEach(options.targets, function (target) {
       var transient = "false";
       if (target.hide) {
         transient = true;
@@ -260,7 +260,7 @@ export class OpenNMSDatasource {
         });
         query.source = query.source.concat(source);
 
-        labels = labels.concat(_.map(source, 'label'));
+        labels = labels.concat(map(source, 'label'));
 
       } else if (target.type === QueryType.Expression) {
         if (!((target.label && target.expression))) {
@@ -278,7 +278,7 @@ export class OpenNMSDatasource {
         expression = self.interpolateExpressionVariables(expression, options.scopedVars);
         query.expression = query.expression.concat(expression);
 
-        labels = labels.concat(_.map(expression, 'label'));
+        labels = labels.concat(map(expression, 'label'));
 
       } else if (target.type === QueryType.Filter) {
         if (!((target.filter))) {
@@ -286,12 +286,12 @@ export class OpenNMSDatasource {
         }
 
         // Interpolate the filter parameters
-        var interpolatedFilterParms = self.interpolateVariables(target.filterParameters, _.keys(target.filterParameters), options.scopedVars);
+        var interpolatedFilterParms = self.interpolateVariables(target.filterParameters, keys(target.filterParameters), options.scopedVars);
 
-        var filters = _.map(interpolatedFilterParms, (filterParms) => {
+        var filters = map(interpolatedFilterParms, (filterParms) => {
           // Build the filter definition
           var parameters = [];
-          _.each(filterParms, function (value, key) {
+          forEach(filterParms, function (value, key) {
             // Skip parameters with undefined or empty values
             if (value === undefined || value === '' || value === null) {
               return;
@@ -331,7 +331,7 @@ export class OpenNMSDatasource {
   }
 
   interpolateValue(value, scopedVars) {
-    return _.map(this.interpolateVariables({'value': value}, ['value'], scopedVars), function(entry) {
+    return map(this.interpolateVariables({'value': value}, ['value'], scopedVars), function(entry) {
       return entry.value;
     });
   }
@@ -339,7 +339,7 @@ export class OpenNMSDatasource {
   interpolateVariables(object, attributes, scopedVars, callback) {
     // Reformat the variables to work with our interpolate function
     var variables = [];
-    _.each(this.templateSrv.variables, function(templateVariable) {
+    forEach(this.templateSrv.variables, function(templateVariable) {
       var variable = {
         name: templateVariable.name,
         value: []
@@ -350,12 +350,12 @@ export class OpenNMSDatasource {
         variable.value.push(scopedVars[variable.name].value);
       } else {
         // Single-valued?
-        if (_.isString(templateVariable.current.value)) {
+        if (isString(templateVariable.current.value)) {
           variable.value.push(templateVariable.current.value);
         } else {
-          _.each(templateVariable.current.value, function(value) {
+          forEach(templateVariable.current.value, function(value) {
             if (value === "$__all") {
-              _.each(templateVariable.options, function(option) {
+              forEach(templateVariable.options, function(option) {
                 // "All" is part of the options, so make sure to skip that one
                 if (option.value !== "$__all") {
                   variable.value.push(option.value);
@@ -429,7 +429,7 @@ export class OpenNMSDatasource {
   }
 
   static flattenResourcesWithAttributes(resources, resourcesWithAttributes) {
-    _.each(resources, function (resource) {
+    forEach(resources, function (resource) {
       if (resource.rrdGraphAttributes !== undefined && Object.keys(resource.rrdGraphAttributes).length > 0) {
         resourcesWithAttributes.push(resource);
       }
@@ -474,7 +474,7 @@ export class OpenNMSDatasource {
   }
 
   getResourcesWithAttributesForNode(nodeId) {
-    var interpolatedNodeId = _.first(this.interpolateValue(nodeId));
+    var interpolatedNodeId = first(this.interpolateValue(nodeId));
 
     return this.doOpenNMSRequest({
       url: '/rest/resources/fornode/' + encodeURIComponent(interpolatedNodeId),
@@ -495,8 +495,8 @@ export class OpenNMSDatasource {
   }
 
   suggestAttributes(nodeId, resourceId, query) {
-    var interpolatedNodeId = _.first(this.interpolateValue(nodeId)),
-        interpolatedResourceId = _.first(this.interpolateValue(resourceId));
+    var interpolatedNodeId = first(this.interpolateValue(nodeId)),
+        interpolatedResourceId = first(this.interpolateValue(resourceId));
     var remoteResourceId = OpenNMSDatasource.getRemoteResourceId(interpolatedNodeId, interpolatedResourceId);
 
     return this.doOpenNMSRequest({
@@ -508,7 +508,7 @@ export class OpenNMSDatasource {
     }).then(function (results) {
       query = query.toLowerCase();
       var attributes = [];
-      _.each(results.data.rrdGraphAttributes, function (value, key) {
+      forEach(results.data.rrdGraphAttributes, function (value, key) {
         if (key.toLowerCase().indexOf(query) >= 0) {
           attributes.push(key);
         }

@@ -1,5 +1,5 @@
 import angular from 'angular';
-import _ from 'lodash';
+import { filter, map } from 'lodash';
 import {ComparatorMapping} from "./mapping/ComparatorMapping";
 
 angular.module('grafana.directives')
@@ -32,10 +32,10 @@ angular.module('grafana.directives')
             return datasource.metricFindQuery(attribute, { entityType: getEntityType(), queryType: 'comparators' })
                 .then(function(comparators) {
                     // the API.Comparator.id or API.Comparator.label fields cannot be used.
-                    comparators = _.filter(comparators, function(comparator) {
+                    comparators = filter(comparators, function(comparator) {
                         return comparator.aliases && comparator.aliases.length > 0;
                     });
-                    return _.map(comparators, function(comparator) {
+                    return map(comparators, function(comparator) {
                         const uiComparator = new ComparatorMapping().getUiComparator(comparator);
                         return uiSegmentSrv.newOperator(uiComparator);
                     });
@@ -52,7 +52,7 @@ angular.module('grafana.directives')
                     queryType: 'attributes',
                     strategy: QueryCtrl.featuredAttributes === true ? 'featured' : 'all'
                 }).then(function(properties) {
-                    let segments = _.map(properties, function(property) {
+                    let segments = map(properties, function(property) {
                         var segment = uiSegmentSrv.newKey(property.id);
                         return segment;
                     });
@@ -74,7 +74,7 @@ angular.module('grafana.directives')
                     queryType: 'values',
                     entityType: getEntityType()
                 }).then(function(values) {
-                    return _.map(values, function(searchResult) {
+                    return map(values, function(searchResult) {
                         var segment = uiSegmentSrv.newKeyValue(searchResult.label);
                         return segment;
                     })
@@ -85,7 +85,7 @@ angular.module('grafana.directives')
             // condition input
             if (segment.type === 'condition') {
                 return this.datasource.metricFindQuery(null, { entityType: getEntityType(), queryType: 'operators' }).then(function(operators) {
-                    return _.map(operators, function(operator) {
+                    return map(operators, function(operator) {
                         return uiSegmentSrv.newCondition(operator.label);
                     });
                 }).catch(QueryCtrl.handleQueryError.bind(QueryCtrl));
@@ -105,7 +105,7 @@ angular.module('grafana.directives')
             if (segmentIndex == 0 && clause.restriction.asRestrictionDTO()) {
                 const attribute = clause.restriction.getAttribute();
                 $scope.findOperators(attribute).then(segments => {
-                    const comparators = _.map(segments, segment => {
+                    const comparators = map(segments, segment => {
                         return segment.value;
                     });
                     const comparator = comparators.find(comparator => {
@@ -133,10 +133,11 @@ angular.module('grafana.directives')
                     queryType: 'attributes',
                     strategy: QueryCtrl.featuredAttributes === true ? 'featured' : 'all'
                 }).then(function(properties) {
-                    return properties.filter((property) => {
-                        const orders = $scope.query.orderBy.map((orderBy) => orderBy.getAttribute());
+                    const filtered = filter(properties, (property) => {
+                        const orders = map($scope.query.orderBy, (orderBy) => orderBy.getAttribute());
                         return orders.indexOf(property.id) < 0;
-                    }).map((property) => {
+                    });
+                    return map(filtered, (property) => {
                         return uiSegmentSrv.newKey(property.id);
                     });
                 })
@@ -144,7 +145,7 @@ angular.module('grafana.directives')
             }
 
             if (segment.type == 'value') {
-                return $q.when(['DESC', 'ASC'].map((order) => {
+                return $q.when(map(['DESC', 'ASC'], (order) => {
                     return uiSegmentSrv.newKeyValue(order);
                 }));
             }
@@ -160,7 +161,7 @@ angular.module('grafana.directives')
         };
 
         $scope.removeOrderBy = (order /*, index */) => {
-            $scope.query.orderBy = $scope.query.orderBy.filter((qob) => qob !== order);
+            $scope.query.orderBy = filter($scope.query.orderBy, (qob) => qob !== order);
             QueryCtrl.updateTargetFilter();
             $scope.query.findParent().updateControls();
         };

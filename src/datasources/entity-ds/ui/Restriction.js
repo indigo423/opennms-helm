@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { filter, forEach } from 'lodash';
 
 import { KEY_PLACEHOLDER, VALUE_PLACEHOLDER } from '../constants';
 
@@ -79,14 +79,14 @@ export class Restriction {
     }
 
     asRestrictionDTO() {
-        const segments = _.filter(this.segments, function(segment) {
+        const segments = filter(this.segments, function(segment) {
             return segment.type !== 'plus-button'
                     && (segment.fake === undefined || segment.fake === false)
                     && segment.value !== KEY_PLACEHOLDER && segment.value !== VALUE_PLACEHOLDER;
         });
         if (segments.length > 0 && segments.length % 3 == 0) {
             var data = {};
-            _.each(segments, (segment) => {
+            forEach(segments, (segment) => {
                 if (segment.type === 'key') {
                     data.attribute = segment.value;
                 } else if (segment.type === 'operator') {

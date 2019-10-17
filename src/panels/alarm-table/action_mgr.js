@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { filter, forEach } from 'lodash';
 import {Model} from 'opennms';
 import {CustomAction} from '../../lib/custom_action';
 
@@ -29,17 +29,17 @@ export class ActionMgr {
     }
 
     // We should only ack alarms that are not already acked
-    let acknowledgeableRows = _.filter(this.rows, row => row.alarm.ackTime === void 0);
+    let acknowledgeableRows = filter(this.rows, row => row.alarm.ackTime === void 0);
     this.addOptionToContextMenu('General', 'Acknowledge', acknowledgeableRows,
         (row) => self.ctrl.acknowledgeAlarm(row.source, row.alarmId));
 
     // We should only nack alarms that ARE already acked
-    let unacknowledgeableRows = _.filter(this.rows, row => row.alarm.ackTime);
+    let unacknowledgeableRows = filter(this.rows, row => row.alarm.ackTime);
     this.addOptionToContextMenu('General', 'Unacknowledge', unacknowledgeableRows,
       (row) => self.ctrl.unacknowledgeAlarm(row.source, row.alarmId));
 
     // We should only escalate alarms that have a severity < CRITICAL
-    let escalatableRows = _.filter(this.rows, row => {
+    let escalatableRows = filter(this.rows, row => {
       let severity = row.alarm.severity;
       return severity.index >= Model.Severities.CLEARED.index && severity.index < Model.Severities.CRITICAL.index;
     });
@@ -47,7 +47,7 @@ export class ActionMgr {
       (row) => self.ctrl.escalateAlarm(row.source, row.alarmId));
 
     // We should only clear alarms that have a severity > CLEARED
-    let cleareableRows = _.filter(this.rows, row => {
+    let cleareableRows = filter(this.rows, row => {
       let severity = row.alarm.severity;
       return severity.index > Model.Severities.CLEARED.index;
     });
@@ -55,7 +55,7 @@ export class ActionMgr {
       (row) => self.ctrl.clearAlarm(row.source, row.alarmId));
 
     // We should only create tickets for alarms that don't already have a ticket state, or where a previous create failed
-    let createTicketRows = _.filter(this.rows, row => {
+    let createTicketRows = filter(this.rows, row => {
       return row.ticketerConfig && row.ticketerConfig.enabled
         && (!row.alarm.troubleTicketState || row.alarm.troubleTicketState === Model.TroubleTicketStates.CREATE_FAILED);
     });
@@ -63,7 +63,7 @@ export class ActionMgr {
       (row) => self.ctrl.createTicketForAlarm(row.source, row.alarmId));
 
     // We should only update tickets for alarms that have some ticket state
-    let updateTicketRows = _.filter(this.rows, row => {
+    let updateTicketRows = filter(this.rows, row => {
       return row.ticketerConfig && row.ticketerConfig.enabled
         && (row.alarm.troubleTicketState && row.alarm.troubleTicket);
     });
@@ -71,7 +71,7 @@ export class ActionMgr {
       (row) => self.ctrl.updateTicketForAlarm(row.source, row.alarmId));
 
     // We should only close tickets for alarms that an open ticket, or where a previous close failed
-    let closeTicketRows = _.filter(this.rows, row => {
+    let closeTicketRows = filter(this.rows, row => {
       return row.ticketerConfig && row.ticketerConfig.enabled
         && row.alarm.troubleTicketState && (row.alarm.troubleTicketState === Model.TroubleTicketStates.OPEN || row.alarm.troubleTicketState === Model.TroubleTicketStates.CLOSE_FAILED);
     });
@@ -120,7 +120,7 @@ export class ActionMgr {
       text: text + this.getSuffix(rows),
       click: () => {
         // Apply the action to each row in the selection
-        _.each(rows, row => action(row));
+        forEach(rows, row => action(row));
       }
     });
   }

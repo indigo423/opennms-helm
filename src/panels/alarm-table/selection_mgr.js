@@ -1,5 +1,4 @@
-import _ from 'lodash';
-
+import { filter, findIndex, forEach, isEqual } from 'lodash';
 export class SelectionMgr {
 
   constructor(getRowsInRange, onSelectionChangeCallback) {
@@ -15,7 +14,7 @@ export class SelectionMgr {
 
   handleRowClick(row, exclusiveModifier, rangeModifier) {
     let selectedRows;
-    if (!rangeModifier && !exclusiveModifier && this._selectedRows.size === 1 && this._lastSelectedRow && _.isEqual(this._lastSelectedRow, row)) {
+    if (!rangeModifier && !exclusiveModifier && this._selectedRows.size === 1 && this._lastSelectedRow && isEqual(this._lastSelectedRow, row)) {
       selectedRows = new Set();
     } else if (!rangeModifier || this._lastSelectedRow === undefined) {
       // No other row was previously selected, use the row that was clicked on
@@ -30,7 +29,7 @@ export class SelectionMgr {
 
   isRowSelected(row) {
     for (let selectedRow of this._selectedRows) {
-      if (_.isEqual(selectedRow, row)) {
+      if (isEqual(selectedRow, row)) {
         return true;
       }
     }
@@ -55,27 +54,27 @@ export class SelectionMgr {
     let didSelectionChange = false;
     if (!exclusiveModifier) {
       // Determine the rows we need to add to the selection
-      let rowsToAddToSelection = _.filter(selectionRows, selectionRow => !this.isRowSelected(selectionRow));
+      let rowsToAddToSelection = filter(selectionRows, selectionRow => !this.isRowSelected(selectionRow));
 
       // Determine the rows we need to remove from the selection
-      let rowsToRemoveFromSelection = _.filter(this.getSelectedRows(), selectedRow => {
-        return _.findIndex(selectionRows, selectionRow => _.isEqual(selectedRow, selectionRow)) < 0;
+      let rowsToRemoveFromSelection = filter(this.getSelectedRows(), selectedRow => {
+        return findIndex(selectionRows, selectionRow => isEqual(selectedRow, selectionRow)) < 0;
       });
 
       if (rowsToRemoveFromSelection.length > 0) {
         // Clear everything and add all the selected rows
         this.clearSelectedRows();
-        _.each(selectionRows, selectionRow => this.addRowToSelection(selectionRow));
+        forEach(selectionRows, selectionRow => this.addRowToSelection(selectionRow));
         didSelectionChange = true;
       } else if (rowsToAddToSelection.length > 0) {
         // Add the selected rows
-        _.each(rowsToAddToSelection, rowToAddToSelection =>  this.addRowToSelection(rowToAddToSelection));
+        forEach(rowsToAddToSelection, rowToAddToSelection =>  this.addRowToSelection(rowToAddToSelection));
         didSelectionChange = true;
       }
     } else {
       const selected = this.isRowSelected(selectionRows[selectionRows.length - 1]);
       // Add the rows to the current selection
-      _.each(selectionRows, selectionRow => {
+      forEach(selectionRows, selectionRow => {
         if (selected) {
           this.removeRowFromSelection(selectionRow);
           didSelectionChange = true;

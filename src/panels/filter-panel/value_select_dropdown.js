@@ -1,6 +1,5 @@
 import angular from 'angular';
-import _ from 'lodash';
-
+import { filter, find, forEach, indexOf, map } from 'lodash';
 import coreModule from 'app/core/core_module';
 
 export class OnmsValueSelectDropdownCtrl {
@@ -30,11 +29,11 @@ export class OnmsValueSelectDropdownCtrl {
     this.highlightIndex = -1;
 
     this.options = this.variable.options;
-    this.selectedValues = _.filter(this.options, { selected: true });
+    this.selectedValues = filter(this.options, { selected: true });
 
-    this.tags = _.map(this.variable.tags, value => {
+    this.tags = map(this.variable.tags, value => {
       let tag = { text: value, selected: false };
-      _.each(this.variable.current.tags, tagObj => {
+      forEach(this.variable.current.tags, tagObj => {
         if (tagObj.text === value) {
           tag = tagObj;
         }
@@ -55,13 +54,13 @@ export class OnmsValueSelectDropdownCtrl {
 
     if (current.tags && current.tags.length) {
       // filer out values that are in selected tags
-      const selectedAndNotInTag = _.filter(this.variable.options, option => {
+      const selectedAndNotInTag = filter(this.variable.options, option => {
         if (!option.selected) {
           return false;
         }
         for (let i = 0; i < current.tags.length; i++) {
           const tag = current.tags[i];
-          if (_.indexOf(tag.values, option.value) !== -1) {
+          if (indexOf(tag.values, option.value) !== -1) {
             return false;
           }
         }
@@ -69,7 +68,7 @@ export class OnmsValueSelectDropdownCtrl {
       });
 
       // convert values to text
-      const currentTexts = _.map(selectedAndNotInTag, 'text');
+      const currentTexts = map(selectedAndNotInTag, 'text');
 
       // join texts
       this.linkText = currentTexts.join(' + ');
@@ -82,14 +81,14 @@ export class OnmsValueSelectDropdownCtrl {
   }
 
   clearSelections() {
-    this.selectedValues = _.filter(this.options, { selected: true });
+    this.selectedValues = filter(this.options, { selected: true });
 
     if (this.selectedValues.length > 1) {
-      _.each(this.options, option => {
+      forEach(this.options, option => {
         option.selected = false;
       });
     } else {
-      _.each(this.search.options, option => {
+      forEach(this.search.options, option => {
         option.selected = true;
       });
     }
@@ -108,8 +107,8 @@ export class OnmsValueSelectDropdownCtrl {
     return tagValuesPromise.then(values => {
       tag.values = values;
       tag.valuesText = values.join(' + ');
-      _.each(this.options, option => {
-        if (_.indexOf(tag.values, option.value) !== -1) {
+      forEach(this.options, option => {
+        if (indexOf(tag.values, option.value) !== -1) {
           option.selected = tag.selected;
         }
       });
@@ -155,7 +154,7 @@ export class OnmsValueSelectDropdownCtrl {
     excludeOthers = excludeOthers || false;
 
     const setAllExceptCurrentTo = (newValue) => {
-      _.each(this.options, other => {
+      forEach(this.options, other => {
         if (option !== other) {
           other.selected = newValue;
         }
@@ -182,7 +181,7 @@ export class OnmsValueSelectDropdownCtrl {
   }
 
   selectionsChanged(commitChange) {
-    this.selectedValues = _.filter(this.options, { selected: true });
+    this.selectedValues = filter(this.options, { selected: true });
 
     if (this.selectedValues.length > 1) {
       if (this.selectedValues[0].text === 'All') {
@@ -192,19 +191,19 @@ export class OnmsValueSelectDropdownCtrl {
     }
 
     // validate selected tags
-    _.each(this.tags, tag => {
+    forEach(this.tags, tag => {
       if (tag.selected) {
-        _.each(tag.values, value => {
-          if (!_.find(this.selectedValues, { value: value })) {
+        forEach(tag.values, value => {
+          if (!find(this.selectedValues, { value: value })) {
             tag.selected = false;
           }
         });
       }
     });
 
-    this.selectedTags = _.filter(this.tags, { selected: true });
-    this.variable.current.value = _.map(this.selectedValues, 'value');
-    this.variable.current.text = _.map(this.selectedValues, 'text').join(' + ');
+    this.selectedTags = filter(this.tags, { selected: true });
+    this.variable.current.value = map(this.selectedValues, 'value');
+    this.variable.current.text = map(this.selectedValues, 'text').join(' + ');
     this.variable.current.tags = this.selectedTags;
 
     if (!this.variable.multi) {
@@ -240,7 +239,7 @@ export class OnmsValueSelectDropdownCtrl {
 
   queryChanged() {
     this.highlightIndex = -1;
-    this.search.options = _.filter(this.options, option => {
+    this.search.options = filter(this.options, option => {
       return option.text.toLowerCase().indexOf(this.search.query.toLowerCase()) !== -1;
     });
 
