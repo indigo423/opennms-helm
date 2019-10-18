@@ -2,7 +2,7 @@ import {Datasource} from "../datasources/perf-ds/module";
 import Q from "q";
 
 describe('OpenNMSPMDatasource', function () {
-  let ctx = {};
+  const ctx = {};
 
   beforeEach(function () {
     ctx.$q = Q;
@@ -12,7 +12,7 @@ describe('OpenNMSPMDatasource', function () {
   });
 
   describe('querying with one target', function () {
-    let query = {
+    const query = {
       range: {from: 'now-1h', to: 'now'},
       targets: [{
         type: "attribute",
@@ -24,7 +24,7 @@ describe('OpenNMSPMDatasource', function () {
       interval: '1s'
     };
 
-    let response = {
+    const response = {
       "step": 300000,
       "start": 1424211730000,
       "end": 1424226130000,
@@ -56,7 +56,7 @@ describe('OpenNMSPMDatasource', function () {
   });
 
   describe('relaxed mode', function () {
-    let query = {
+    const query = {
       range: {from: 'now-1h', to: 'now'},
       targets: [{
         type: "attribute",
@@ -68,7 +68,7 @@ describe('OpenNMSPMDatasource', function () {
       interval: '1s'
     };
 
-    let response = {
+    const response = {
       "step": 300000,
       "start": 1424211730000,
       "end": 1424226130000,
@@ -118,7 +118,7 @@ describe('OpenNMSPMDatasource', function () {
         {name: 'variable', current: {value: 'loadavg1'}}
       ];
 
-      let options = {
+      const options = {
         range: {from: 'now-1h', to: 'now'},
         targets: [{
           type: "attribute",
@@ -129,7 +129,7 @@ describe('OpenNMSPMDatasource', function () {
         }],
         interval: '1s'
       };
-      let [query,] = ctx.ds.buildQuery(options);
+      const [query,] = ctx.ds.buildQuery(options);
 
       expect(query.source.length).to.equal(1);
       expect(query.source[0].attribute).to.equal("loadavg1");
@@ -140,7 +140,7 @@ describe('OpenNMSPMDatasource', function () {
         {name: 'variable', current: {value: 'loadavg1'}}
       ];
 
-      let options = {
+      const options = {
         range: {from: 'now-1h', to: 'now'},
         targets: [{
           type: "attribute",
@@ -156,7 +156,7 @@ describe('OpenNMSPMDatasource', function () {
           }
         }
       };
-      let [query,] = ctx.ds.buildQuery(options);
+      const [query,] = ctx.ds.buildQuery(options);
 
       expect(query.source.length).to.equal(1);
       expect(query.source[0].attribute).to.equal("loadavg5");
@@ -167,7 +167,7 @@ describe('OpenNMSPMDatasource', function () {
         {name: 'node', current: {value: ['1', 'FS:FID']}}
       ];
 
-      let options = {
+      const options = {
         range: {from: 'now-1h', to: 'now'},
         targets: [{
           type: "attribute",
@@ -179,7 +179,7 @@ describe('OpenNMSPMDatasource', function () {
         }],
         interval: '1s'
       };
-      let [query,] = ctx.ds.buildQuery(options);
+      const [query,] = ctx.ds.buildQuery(options);
 
       expect(query.source.length).to.equal(2);
       expect(query.source[0].resourceId).to.equal("node[1].nodeSnmp[]");
@@ -192,7 +192,7 @@ describe('OpenNMSPMDatasource', function () {
         {name: 'v2', current: {value: ['x', 'y']}}
       ];
 
-      let options = {
+      const options = {
         range: {from: 'now-1h', to: 'now'},
         targets: [{
           type: "attribute",
@@ -203,7 +203,7 @@ describe('OpenNMSPMDatasource', function () {
         }],
         interval: '1s'
       };
-      let [query,] = ctx.ds.buildQuery(options);
+      const [query,] = ctx.ds.buildQuery(options);
 
       expect(query.source.length).to.equal(4);
       expect(query.source[0].attribute).to.equal("1-x");
@@ -227,7 +227,7 @@ describe('OpenNMSPMDatasource', function () {
         }
       ];
 
-      let options = {
+      const options = {
         range: {from: 'now-1h', to: 'now'},
         targets: [{
           type: "attribute",
@@ -238,7 +238,7 @@ describe('OpenNMSPMDatasource', function () {
         }],
         interval: '1s'
       };
-      let [query,] = ctx.ds.buildQuery(options);
+      const [query,] = ctx.ds.buildQuery(options);
 
       expect(query.source.length).to.equal(4);
       expect(query.source[0].attribute).to.equal("a");
@@ -252,7 +252,7 @@ describe('OpenNMSPMDatasource', function () {
         {name: 'variable', current: {value: ['x', 'y']}}
       ];
 
-      let options = {
+      const options = {
         range: {from: 'now-1h', to: 'now'},
         targets: [
           {
@@ -275,7 +275,7 @@ describe('OpenNMSPMDatasource', function () {
         ],
         interval: '1s'
       };
-      let [query,] = ctx.ds.buildQuery(options);
+      const [query,] = ctx.ds.buildQuery(options);
 
       expect(query.filter.length).to.equal(2);
       expect(query.filter[0].name).to.equal("some-filter");
@@ -296,7 +296,7 @@ describe('OpenNMSPMDatasource', function () {
 
   describe('preserving order', function () {
       it('should preserve a single label', function () {
-          let options = {
+          const options = {
               range: {from: 'now-1h', to: 'now'},
               targets: [{
                   type: "attribute",
@@ -308,14 +308,14 @@ describe('OpenNMSPMDatasource', function () {
               interval: '1s'
           };
 
-          let [,labels] = ctx.ds.buildQuery(options);
+          const [,labels] = ctx.ds.buildQuery(options);
 
           expect(labels.length).to.equal(1);
           expect(labels[0]).to.equal("loadavg1");
       });
 
       it('should preserve multiple labels', function () {
-          let options = {
+          const options = {
               range: {from: 'now-1h', to: 'now'},
               targets: [{
                   type: "attribute",
@@ -334,7 +334,7 @@ describe('OpenNMSPMDatasource', function () {
               interval: '1s'
           };
 
-          let [,labels] = ctx.ds.buildQuery(options);
+          const [,labels] = ctx.ds.buildQuery(options);
 
           expect(labels.length).to.equal(2);
           expect(labels[0]).to.equal("loadavg1");
@@ -342,7 +342,7 @@ describe('OpenNMSPMDatasource', function () {
       });
 
       it('should preserve multiple labels (reverse)', function () {
-          let options = {
+          const options = {
               range: {from: 'now-1h', to: 'now'},
               targets: [
                   {
@@ -363,7 +363,7 @@ describe('OpenNMSPMDatasource', function () {
               interval: '1s'
           };
 
-          let [,labels] = ctx.ds.buildQuery(options);
+          const [,labels] = ctx.ds.buildQuery(options);
 
           expect(labels.length).to.equal(2);
           expect(labels[0]).to.equal("loadavg5");
@@ -371,7 +371,7 @@ describe('OpenNMSPMDatasource', function () {
       });
 
       it('should reorder the series', async function () {
-          let query = {
+          const query = {
               range: {from: 'now-1h', to: 'now'},
               targets: [
                   {
@@ -412,7 +412,7 @@ describe('OpenNMSPMDatasource', function () {
               interval: '1s'
           };
 
-          let response = {
+          const response = {
               "step": 5,
               "start": 0,
               "end": 10,
@@ -437,7 +437,7 @@ describe('OpenNMSPMDatasource', function () {
               });
           };
 
-          var result = await ctx.ds.query(query);
+          const result = await ctx.ds.query(query);
           expect(result.data.length).to.equal(3);
           expect(result.data[0].target).to.equal('a');
           expect(result.data[0].datapoints).to.deep.equal([[1, 0], [2, 5], [3, 10]]);

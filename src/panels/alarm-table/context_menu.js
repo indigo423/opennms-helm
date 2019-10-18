@@ -24,6 +24,7 @@ THE SOFTWARE.
 This is based on the context menu code available here:
  https://github.com/Templarian/ui.bootstrap.contextMenu/blob/6f8d787726019ef9e814fbfbd986f10aaf74eddd/contextMenu.js
 */
+/* eslint-disable */
 
 /** @ngInject */
 export function contextMenuAsDirective() {

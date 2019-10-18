@@ -85,7 +85,7 @@ export class Restriction {
                     && segment.value !== KEY_PLACEHOLDER && segment.value !== VALUE_PLACEHOLDER;
         });
         if (segments.length > 0 && segments.length % 3 == 0) {
-            var data = {};
+            const data = {};
             forEach(segments, (segment) => {
                 if (segment.type === 'key') {
                     data.attribute = segment.value;

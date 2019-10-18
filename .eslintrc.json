@@ -207,7 +207,7 @@
         "no-useless-constructor": "error",
         "no-useless-rename": "error",
         "no-useless-return": "off",
-        "no-var": "off",
+        "no-var": "warn",
         "no-void": "off",
         "no-warning-comments": "off",
         "no-whitespace-before-property": "error",

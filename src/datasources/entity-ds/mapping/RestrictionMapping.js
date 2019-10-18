@@ -17,7 +17,7 @@ export class RestrictionMapping {
         if (apiRestriction instanceof API.NestedRestriction) {
             return this.getUiQuery(apiRestriction);
         } else {
-            var uiRestriction = new UI.Restriction(
+            return new UI.Restriction(
                 this.uiSegmentSrv,
                 new UI.RestrictionDTO(
                     this.entity.getAttributeMapping().getUiAttribute(apiRestriction.attribute),
@@ -25,14 +25,13 @@ export class RestrictionMapping {
                     new ValueMapping().getUiValue(apiRestriction.attribute, apiRestriction.value)
                 )
             );
-            return uiRestriction
         }
     }
 
     getUiQuery(apiNestedRestriction) {
-        let self = this;
-        let uiQuery = new UI.Query(this.uiSegmentSrv);
-        var uiClauses = map(apiNestedRestriction.clauses, clause => {
+        const self = this;
+        const uiQuery = new UI.Query(this.uiSegmentSrv);
+        const uiClauses = map(apiNestedRestriction.clauses, clause => {
             return new ClauseMapping(self.uiSegmentSrv, self.entity).getUiClause(clause);
         });
         forEach(uiClauses, uiClause => {

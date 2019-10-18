@@ -53,7 +53,7 @@ export class AlarmDetailsCtrl {
     $scope.feedbackIncorrectCount = 0;
 
     // Compute the icon
-    let severity = $scope.alarm.severity.label.toLowerCase();
+    const severity = $scope.alarm.severity.label.toLowerCase();
     $scope.severityIcon = TableRenderer.getIconForSeverity(severity);
     $scope.severity = $scope.$parent.severity;
 
@@ -77,7 +77,7 @@ export class AlarmDetailsCtrl {
     // If this is a Situation, collect any correlation feedback previously submitted
     if ($scope.alarm.relatedAlarms && $scope.alarm.relatedAlarms.length > 0) {
       $scope.tabs.push('Related Alarms');
-      let self = this;
+      const self = this;
       this.getDatasource().then(ds => { return ds.getSituationFeedback(self.$scope.alarm.id) })
         .then(
           function (feedback) {
@@ -107,9 +107,9 @@ export class AlarmDetailsCtrl {
 
   // required to correctly re-assign values of the retrieved feedback to the working feedback
   clone(feedback) {
-    let cloned  = [];
-    for (var i = 0; i < feedback.length; i++) {
-      let fb = new Model.OnmsSituationFeedback();
+    const cloned  = [];
+    for (let i = 0; i < feedback.length; i++) {
+      const fb = new Model.OnmsSituationFeedback();
       fb.situationKey = feedback[i].situationKey;
       fb.situationFingerprint = feedback[i].situationFingerprint;
       fb.alarmKey = feedback[i].alarmKey;
@@ -124,45 +124,40 @@ export class AlarmDetailsCtrl {
   }
 
   detailFeedbackIncorrectButton(reductionKey) {
-    let button = this.INCORRECT_OUTLINED;
     if (this.$scope.situationFeedback) {
       for (let feedback of this.$scope.situationFeedback) {
         if (feedback.alarmKey === reductionKey && feedback.feedbackType.id === Model.FeedbackTypes.FALSE_POSITIVE.id) {
-          button = this.INCORRECT_FILLED;
-          break;
+          return this.INCORRECT_FILLED;
         }
       }
     }
-    return button;
+    return this.INCORRECT_OUTLINED;
   }
 
   detailFeedbackOkayButton(reductionKey) {
-    let button = this.CORRECT_FILLED;
     if (this.$scope.situationFeedback) {
       for (let feedback of this.$scope.situationFeedback) {
         if (feedback.alarmKey === reductionKey && feedback.feedbackType.id === Model.FeedbackTypes.FALSE_POSITIVE.id) {
-          button = this.CORRECT_OUTLINED;
-          break;
+          return this.CORRECT_OUTLINED;
         }
       }
     }
-    return button;
+    return this.CORRECT_FILLED;
   }
 
   detailFeedbackRootCauseButton(reductionKey) {
-    let button = this.ROOT_CAUSE_NO;
     if (this.isRootCause(reductionKey)) {
-      button = this.ROOT_CAUSE_YES;
+      return this.ROOT_CAUSE_YES;
     }
-    return button;
+    return this.ROOT_CAUSE_NO;
   }
 
   initalizeFeeback() {
     this.$scope.feedbackCorrectCount = 0;
     this.$scope.feedbackIncorrectCount = 0;
-    let feedback = [];
+    const feedback = [];
     for (let alarm of this.$scope.alarm.relatedAlarms) {
-      let alarmFeedback = new Model.OnmsSituationFeedback();
+      const alarmFeedback = new Model.OnmsSituationFeedback();
       alarmFeedback.situationKey = this.$scope.alarm.reductionKey;
       alarmFeedback.situationFingerprint = this.fingerPrint(this.$scope.alarm);
       alarmFeedback.alarmKey = alarm.reductionKey;
@@ -217,7 +212,7 @@ export class AlarmDetailsCtrl {
   }
 
   markRootCause(reductionKey, wasRootCause) {
-    let isRootCause = !wasRootCause; // marking or unmarking inverts the previous state
+    const isRootCause = !wasRootCause; // marking or unmarking inverts the previous state
     for (let feedback of this.$scope.situationFeedback) {
       if (feedback.alarmKey === reductionKey) {
         feedback.rootCause = isRootCause;
@@ -250,7 +245,7 @@ export class AlarmDetailsCtrl {
   }
 
   submitFeedback(feedback) {
-    let self = this;
+    const self = this;
     this.getDatasource().then(ds => { return ds.submitSituationFeedback(self.$scope.alarm.id, feedback) })
       .then(
         function () {
@@ -268,7 +263,7 @@ export class AlarmDetailsCtrl {
   updateFeedback(feedback) {
     // We get all feedback from the datasource.
     // Use only the latest that matches the current relatedAlarms.
-    let sortedFeedback = orderBy(feedback, ['timestamp'],  ['desc']);
+    const sortedFeedback = orderBy(feedback, ['timestamp'],  ['desc']);
     for (let fb of sortedFeedback) {
       const index = this.$scope.situationFeedback.findIndex(ifb => ifb.alarmKey === fb.alarmKey);
       if (index < 0) {
@@ -300,17 +295,17 @@ export class AlarmDetailsCtrl {
   }
 
   situationFeedbackButton() {
-    let button = this.CORRECT_OUTLINED;
-    let fingerprint = this.fingerPrint(this.$scope.alarm);
+    const fingerprint = this.fingerPrint(this.$scope.alarm);
+
     if (this.$scope.situationFeedback) {
       for (let feedback of this.$scope.situationFeedback) {
         if (feedback.situationFingerprint == fingerprint && this.$scope.hasSituationFeedback) {
-          button = this.CORRECT_FILLED;
-          break;
+          return this.CORRECT_FILLED;
         }
       }
     }
-    return button;
+
+    return this.CORRECT_OUTLINED;
   }
 
   cancelEditedFeedback() {

@@ -43,7 +43,7 @@ angular.module('grafana.directives')
         };
 
         $scope.getSuggestions = function(clause, segment, index) {
-            var segments = clause.restriction.segments;
+            const segments = clause.restriction.segments;
 
             // attribute input
             if (segment.type == 'key' || segment.type == 'plus-button') {
@@ -52,31 +52,28 @@ angular.module('grafana.directives')
                     queryType: 'attributes',
                     strategy: QueryCtrl.featuredAttributes === true ? 'featured' : 'all'
                 }).then(function(properties) {
-                    let segments = map(properties, function(property) {
-                        var segment = uiSegmentSrv.newKey(property.id);
-                        return segment;
+                    return map(properties, function(property) {
+                        return uiSegmentSrv.newKey(property.id);
                     });
-                    return segments;
                 })
                 .catch(QueryCtrl.handleQueryError.bind(QueryCtrl));
             }
 
             // comparator input
             if (segment.type == 'operator') {
-                let attributeSegment = segments[index-1];
+                const attributeSegment = segments[index-1];
                 return $scope.findOperators(attributeSegment.value);
             }
 
             // value input
             if (segment.type == 'value') {
-                let attributeSegment = segments[index-2];
+                const attributeSegment = segments[index-2];
                 return datasource.metricFindQuery(attributeSegment.value, {
                     queryType: 'values',
                     entityType: getEntityType()
                 }).then(function(values) {
                     return map(values, function(searchResult) {
-                        var segment = uiSegmentSrv.newKeyValue(searchResult.label);
-                        return segment;
+                        return uiSegmentSrv.newKeyValue(searchResult.label);
                     })
                 })
                 .catch(QueryCtrl.handleQueryError.bind(QueryCtrl));

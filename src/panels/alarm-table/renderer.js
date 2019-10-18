@@ -226,7 +226,7 @@ export class TableRenderer {
         } else if (column.style.displayAs === 'labelCaps') {
           return v;
         } else {
-          var icon = TableRenderer.getIconForSeverity(v.toLowerCase());
+          const icon = TableRenderer.getIconForSeverity(v.toLowerCase());
           return `<i class="icon severity-icon fa ${icon}" title="${v}"></i>`;
         }
       };
@@ -419,7 +419,7 @@ export class TableRenderer {
       const severity = alarm && alarm.severity && alarm.severity.label ? alarm.severity.label.toLowerCase() : undefined;
 
       for (let i = 0; i < this.table.columns.length; i++) {
-        let columnClasses = [];
+        const columnClasses = [];
         const col = this.table.columns[i];
 
         if (col && !col.style) {
@@ -502,30 +502,22 @@ export class TableRenderer {
   }
 
   static getIconForSeverity(severity) {
-    let icon = 'fa-question-circle';
     switch(severity) {
       case 'indeterminate':
-        icon = 'fa-question-circle';
-        break;
+        return 'fa-question-circle';
       case 'warning':
-        icon = 'fa-exclamation-triangle';
-        break;
+        return 'fa-exclamation-triangle';
       case 'minor':
-        icon = 'fa-bolt';
-        break;
+        return 'fa-bolt';
       case 'major':
-        icon = 'fa-fire';
-        break;
+        return 'fa-fire';
       case 'critical':
-        icon = 'fa-bomb';
-        break;
+        return 'fa-bomb';
       case 'normal':
-        icon = 'fa-leaf';
-        break;
+        return 'fa-leaf';
       case 'cleared':
-        icon = 'fa-check-circle';
-        break;
+        return 'fa-check-circle';
     }
-    return icon;
+    return 'fa-question-circle';
   }
 }

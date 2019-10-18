@@ -26,7 +26,7 @@ export class TableModel {
       return;
     }
 
-    var self = this;
+    const self = this;
     this.rows.sort(function(a, b) {
       const colInfo = self.columns[options.col];
 

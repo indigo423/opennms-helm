@@ -3,11 +3,11 @@ import { clone, find, forEach, isEmpty, isNull } from 'lodash';
 function cartesianProductOfArrays(arrays) {
   // Based on the code from http://stackoverflow.com/questions/15298912/
   // javascript-generating-combinations-from-n-arrays-with-m-elements
-  var r = [], max = arrays.length - 1;
+  const r = [], max = arrays.length - 1;
 
   function helper(arr, i) {
-    for (var j = 0, l = arrays[i].length; j < l; j++) {
-      var a = arr.slice(0); // clone arr
+    for (let j = 0, l = arrays[i].length; j < l; j++) {
+      const a = arr.slice(0); // clone arr
       a.push(arrays[i][j]);
       if (i === max) {
         r.push(a);
@@ -23,21 +23,21 @@ function cartesianProductOfArrays(arrays) {
 
 function cartesianProductOfVariables(variables) {
   // Collect the values from all of the variables
-  var allValues = [];
+  const allValues = [];
   forEach(variables, function (variable) {
     allValues.push(variable.value);
   });
 
   // Generate the cartesian product
-  var productOfAllValues = cartesianProductOfArrays(allValues);
+  const productOfAllValues = cartesianProductOfArrays(allValues);
 
   // Rebuild the variables
-  var productOfAllVariables = [];
+  const productOfAllVariables = [];
   forEach(productOfAllValues, function (rowOfValues) {
-    var rowOfVariables = [];
-    for (var i = 0, l = variables.length; i < l; i++) {
+    const rowOfVariables = [];
+    for (let i = 0, l = variables.length; i < l; i++) {
       // Deep clone
-      var variable = JSON.parse(JSON.stringify(variables[i]));
+      const variable = JSON.parse(JSON.stringify(variables[i]));
       variable.value = rowOfValues[i];
       rowOfVariables.push(variable);
     }
@@ -58,9 +58,9 @@ function defaultReplace(value, variables) {
   if (isNull(value) || isEmpty(value)) {
     return value;
   }
-  var interpolatedValue = value;
+  let interpolatedValue = value;
   forEach(variables, function (variable) {
-    var regexVarName = "\\$" + variable.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regexVarName = "\\$" + variable.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     interpolatedValue = interpolatedValue.replace(new RegExp(regexVarName, "g"), variable.value);
   });
   return interpolatedValue;
@@ -101,13 +101,13 @@ export function interpolate(object, attributes, variables, callback, containsVar
   }
 
   // Add the index variable with a single value
-  var variablesWithIndex = clone(variables);
+  const variablesWithIndex = clone(variables);
   variablesWithIndex.push({name: 'index', value: [0]});
 
   // Collect the list of variables that are referenced by one or more of the keys
-  var referencedVariables = [];
+  const referencedVariables = [];
   forEach(variablesWithIndex, function (variable) {
-    var isVariableReferenced = find(attributes, function (attribute) {
+    const isVariableReferenced = find(attributes, function (attribute) {
       return containsVariable(object[attribute], variable.name);
     });
 
@@ -123,11 +123,11 @@ export function interpolate(object, attributes, variables, callback, containsVar
   }
 
   // Generate all possible permutations of the referenced variable's values
-  var productOfAllVariables = cartesianProductOfVariables(referencedVariables);
+  const productOfAllVariables = cartesianProductOfVariables(referencedVariables);
 
   // Perform the required variable substitution
-  var objects = [];
-  var index = 0;
+  const objects = [];
+  let index = 0;
   forEach(productOfAllVariables, function (rowOfReferencedVariables) {
     // Update the value of the index variable to reflect the index of the row
     forEach(rowOfReferencedVariables, function (variable) {
@@ -137,7 +137,7 @@ export function interpolate(object, attributes, variables, callback, containsVar
       }
     });
 
-    var o = clone(object);
+    const o = clone(object);
     forEach(attributes, function (attribute) {
       o[attribute] = replace(o[attribute], rowOfReferencedVariables);
     });

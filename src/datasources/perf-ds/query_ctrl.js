@@ -4,6 +4,8 @@ import {QueryCtrl} from 'app/plugins/sdk';
 import appEvents from 'app/core/app_events';
 import { filter, forEach, isNull, isUndefined, sortBy, take } from 'lodash';
 
+const RESOURCE_ID_NO_NODE = /node(Source)?\[.*?]\.(.*)$/;
+
 export class OpenNMSQueryCtrl extends QueryCtrl {
   /** @ngInject */
   constructor($rootScope, $scope, $injector, $q, $modal) {
@@ -18,7 +20,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
   }
 
   openNodeSelectionModal() {
-    var self = this;
+    const self = this;
     this.showSelectionModal("nodes", {
       '#': 'id',
       'Label': 'label',
@@ -48,10 +50,10 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
   }
 
   openResourceSelectionModal() {
-    var self = this;
+    const self = this;
 
     function filterResources(resources, query) {
-      var filteredResources = resources;
+      let filteredResources = resources;
       if (query.length >= 1) {
         query = query.toLowerCase();
         filteredResources = filter(resources, function (resource) {
@@ -60,7 +62,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
       }
 
       // Limit the results - it takes along time to render if there are too many
-      var totalCount = filteredResources.length;
+      const totalCount = filteredResources.length;
       filteredResources = take(filteredResources, self.datasource.searchLimit);
 
       return {
@@ -76,7 +78,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
       'Name': 'name'
     }, function (query) {
       if (self.nodeResources !== undefined) {
-        var deferred = self.$q.defer();
+        const deferred = self.$q.defer();
         deferred.resolve(filterResources(self.nodeResources, query));
         return deferred.promise;
       }
@@ -96,15 +98,14 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
         });
     }, function (resource) {
       // Exclude the node portion of the resource id
-      var re = /node(Source)?\[.*?]\.(.*)$/;
-      var match = re.exec(resource.id);
+      const match = RESOURCE_ID_NO_NODE.exec(resource.id);
       self.target.resourceId = match[2];
       self.targetBlur('resourceId');
     });
   }
 
   openAttributeSelectionModal(prop) {
-    var self = this;
+    const self = this;
 
     if (!prop) {
       prop = 'attribute';
@@ -116,7 +117,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
       return self.datasource
         .suggestAttributes(self.target.nodeId, self.target.resourceId, query)
         .then(function (attributes) {
-          var namedAttributes = [];
+          const namedAttributes = [];
           forEach(attributes, function (attribute) {
             namedAttributes.push({'name': attribute});
           });
@@ -134,7 +135,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
   }
 
   openFilterSelectionModal() {
-    var self = this;
+    const self = this;
     this.showSelectionModal("filters", {
       'Name': 'name',
       'Description': 'description',
@@ -156,7 +157,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
   }
 
   showSelectionModal(label, columns, search, callback) {
-    var scope = this.$rootScope.$new();
+    const scope = this.$rootScope.$new();
 
     scope.label = label;
     scope.columns = columns;
@@ -165,7 +166,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
     scope.result = this.$q.defer();
     scope.result.promise.then(callback);
 
-    var modal = this.$modal({
+    const modal = this.$modal({
       template: 'public/plugins/opennms-helm-app/datasources/perf-ds/partials/modal.selection.html',
       persist: false,
       show: false,
@@ -179,7 +180,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
     if (required === undefined) {
       required = true;
     }
-    var errorMessage = this.validateTarget(targetId, required);
+    const errorMessage = this.validateTarget(targetId, required);
     if (errorMessage) {
       appEvents.emit('alert-error', ['Error', errorMessage]);
       this.error = errorMessage;
@@ -191,7 +192,7 @@ export class OpenNMSQueryCtrl extends QueryCtrl {
 
   validateTarget(targetId, required) {
     if (this.target.type === QueryType.Attribute || this.target.type === QueryType.Expression) {
-      var messages = {
+      const messages = {
         'nodeId': "You must supply a node id.",
         'resourceId': "You must supply a resource id.",
         'attribute': "You must supply an attribute.",

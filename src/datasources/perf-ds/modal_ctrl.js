@@ -9,7 +9,7 @@ class ModalCtrl {
   }
 
   searchForRows() {
-    var self = this;
+    const self = this;
     this.searching = true;
     this.$scope.search(this.query)
       .then(function (results) {
